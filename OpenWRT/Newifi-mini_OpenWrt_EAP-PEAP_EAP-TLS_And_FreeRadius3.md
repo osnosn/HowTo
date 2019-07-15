@@ -147,34 +147,34 @@ network={
 其中 testing123 为 /etc/freeradius3/clients.conf 中的radius共享密钥。
 **看到最后一行为 SUCCESS 就测试成功。**
 ### 配置WIFI，启动radiusd服务
-在openwrt的web管理页面，启动radiusd服务。
-配置2.4G和5G的WiFi，设置"无线加密"为"WPA2-EAP"，"算法"为"AES"。
-提供给"手机"，"电脑"，等支持企业认证的设备连接使用。
-/etc/freeradius3/mod-config/files/authorize文件中的账号多设置几个。
-家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。
+在openwrt的web管理页面，启动radiusd服务。   
+配置2.4G和5G的WiFi，设置"无线加密"为"WPA2-EAP"，"算法"为"AES"。    
+提供给"手机"，"电脑"，等支持企业认证的设备连接使用。   
+/etc/freeradius3/mod-config/files/authorize文件中的账号多设置几个。   
+家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。   
 
-另外在2.4G WiFi中增加一个SSID，"无线加密"为"WPA2-PSK"，"算法"为"AES"。
-家里总有几个非智能设备不支持企业认证。这些设备一般只支持2.4G，不支持5G。
-比如"远程遥控插座"，"扫地机器人"，……
+另外在2.4G WiFi中增加一个SSID，"无线加密"为"WPA2-PSK"，"算法"为"AES"。   
+家里总有几个非智能设备不支持企业认证。这些设备一般只支持2.4G，不支持5G。   
+比如"远程遥控插座"，"扫地机器人"，……   
 
-> **有大神说碰到[如下情况](https://www.right.com.cn/FORUM/forum.php?mod=viewthread&tid=259345)，我没碰到。但也写在这留作参考。**
-> **我没修改这行，测试就通过了。**
-> 如果失败原因是 “The users session was previously rejected” ，
-> 而且往上翻日志翻来覆去就是找不出原因，请尝试：
-在 /etc/freeradius3/sites-available/inner-tunnel 中，第 220 行附近，有一段配置项：
-> Auth-Type MS-CHAP {
->    mschap
-> }
-> 改为
-> Auth-Type MSCHAP {
->    mschap
-> }
+> **有大神说碰到[如下情况](https://www.right.com.cn/FORUM/forum.php?mod=viewthread&tid=259345)，我没碰到。但也写在这留作参考。**   
+> **我没修改这行，测试就通过了。**   
+> 如果失败原因是 “The users session was previously rejected” ，   
+> 而且往上翻日志翻来覆去就是找不出原因，请尝试：   
+> 在 /etc/freeradius3/sites-available/inner-tunnel 中，第 220 行附近，有一段配置项：   
+> Auth-Type MS-CHAP {   
+>    mschap   
+> }   
+> 改为   
+> Auth-Type MSCHAP {   
+>    mschap   
+> }   
 
 ---------------
 
 ==================
 ## 继续搞 EAP-TLS
-因为在openwrt中用eapol_test使用证书测试，无法通过。也许安装eapol-test-openssl可以，我没试。
+因为在openwrt中用eapol_test使用证书测试，无法通过。也许安装eapol-test-openssl可以，我没试。   
 我换用CentOS中的eapol_test 来测试。
 ```
 opkg update
@@ -187,12 +187,12 @@ tls {
     tls = tls-common
 }
 ```
-停止服务
-`/etc/init.d/radiusd  stop `
-测试
+停止服务   
+`/etc/init.d/radiusd  stop `   
+测试   
 ` radiusd -X `
-没有错误就按 `CTRL-C` 终止
-启动服务 ` /etc/init.d/radiusd start `
+没有错误就按 `CTRL-C` 终止   
+启动服务 ` /etc/init.d/radiusd start `   
 ### 制作用户测试证书，[正式使用可以参考这篇文章,创建漂亮的证书](https://www.cnblogs.com/osnosn/p/10597897.html)。
 ```
 cd /etc/freeradius3/certs/
@@ -200,14 +200,14 @@ openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -ou
 ## commonName: 不能留空
 openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecca.crt -keyfile ecca.key
 ```
-Router space usage: overlay used:32%,free:8.2M
-<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />
-正式使用还要生成crl.pem，` cat ca.crt  crl.pem > ca.pem `
+Router space usage: overlay used:32%,free:8.2M    
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />   
+正式使用还要生成crl.pem，` cat ca.crt  crl.pem > ca.pem `   
 并打开 /etc/freeradius3/mod-enabled/eap 文件中 check_crl = yes 的注释
 
 #### eapol_test 测试
-参考：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)
-写文件 test-tls
+参考：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)   
+写文件 test-tls   
 ```
 network={
     eap=TLS
@@ -224,12 +224,12 @@ network={
 ```
 执行 ` eapol_test  -c test-tls -s 'testing123' `
 
-去CentOS，Debian 或者 Ubuntu 之类的Linux 中 用 eapol_test 命令测试。一般是OK的。
-OpenWRT 中的 eapol_test 是怎么测试都通不过。大概是因为简化的太多了。也许安装eapol-test-openssl可以，我没试。
+去CentOS，Debian 或者 Ubuntu 之类的Linux 中 用 eapol_test 命令测试。一般是OK的。   
+OpenWRT 中的 eapol_test 是怎么测试都通不过。大概是因为简化的太多了。也许安装eapol-test-openssl可以，我没试。   
 
-freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。   
-另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。
-参考:[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration#.2Fetc.2Fraddb.2Fclients.conf)
+freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。      
+另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。   
+参考:[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration#.2Fetc.2Fraddb.2Fclients.conf)   
 
 ------------
 This is my config files.   
