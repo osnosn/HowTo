@@ -1,1 +1,448 @@
-## Newifi-mini OpenWrt EAP-PEAP,EAP-TLS With FreeRadius3
+## [OpenWrt: Config 802.1X,EAP-PEAP,EAP-TLS using FreeRadius3 on Newifi-mini](https://github.com/osnosn/HowTo/blob/master/OpenWRT/Newifi-mini_OpenWrt_EAP-PEAP_EAP-TLS_And_FreeRadius3.md)
+
+Written in 2019-07-15.
+
+I'm using: OpenWrt-18.06.4   
+bin file: http://downloads.openwrt.org/releases/18.06.4/targets/ramips/mt7620/openwrt-18.06.4-ramips-mt7620-y1-squashfs-sysupgrade.bin
+
+```
+opkg update (Get newest list)
+opkg remove wpad-mini
+opkg install wpad  (Support WPA2-EAP,WPA2 802.1x on openwrt's wifi) 
+```
+Router space usage: overlay used:10%,free 10.9M   
+`opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freeradius3-mod-realm freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-eap-mschapv2`
+
+Router space usage: overlay used:27%,free:8.8M
+
+
+freeradius3-mod-eap-peap (peap)   
+freeradius3-mod-always (reject)   
+freeradius3-mod-realm (suffix)   
+freeradius3-mod-expr (expression)   
+freeradius3-mod-files (user & password)   
+freeradius3-mod-eap-mschapv2 (peap needed)   
+
+modify `/etc/freeradius3/mod-config/files/authorize` Add one or more line, like this：   
+`bob     Cleartext-Password := "hello" `
+
+modify `/etc/freeradius3/mod-enabled/eap`   
+```
+- default_eap_type = md5  
++ default_eap_type = peap 
+comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...} 
+- dh_file = ${certdir}/dh
++ #dh_file = ${certdir}/dh
+```
+
+### Create certs for test，[Or Reference to this article to create certs](https://www.cnblogs.com/osnosn/p/10597897.html)。
+`opkg install openssl-util `
+Router space usage: overlay used:29%,free:8.6M
+```
+cd /etc/freeradius3/certs/
+openssl ecparam -name prime256v1 -out ec_param
+openssl req -nodes -newkey ec:ec_param -days 3650 -x509 -sha256 -keyout ecca.key -out ecca.crt
+
+## server cert must use RSA, otherwise radius will fail to authorize.  
+## I guess: if use ECC in server cert, maybe need "dh_file=". I don't known.
+openssl req -nodes -newkey rsa:1024 -days 3650 -sha256 -keyout serverec.key -out serverec.csr
+## commonName: Must SET
+mkdir ./demoCA/
+mkdir ./demoCA/newcerts
+touch ./demoCA/index.txt
+echo 01 > ./demoCA/serial
+openssl ca -extensions v3_ca -days 3650 -out serverec.crt -in serverec.csr -cert ecca.crt -keyfile ecca.key
+## view cert：openssl x509 -in serverec.crt -noout -text
+cat serverec.key serverec.crt > server.pem
+cat ecca.crt > ca.pem
+## After test(EAP-TLS need CRL。EAP-PEAP no need CRL), cat ecca.crt crl.pem > ca.pem
+## in "/etc/freeradius3/mod-enabled/eap" file, uncomment "check_crl = yes" 
+```
+
+### Run "radiusd -X" according to error msg(red color) shows filename & line number. comment it out.
+<a target="_blank" href="https://img2018.cnblogs.com/blog/1641467/201907/1641467-20190715120201857-1466298874.png"><img src="https://img2018.cnblogs.com/blog/1641467/201907/1641467-20190715120201857-1466298874.png" style="width:500px;border:1px solid #000" />
+</a>
+
+```
+modify /etc/freeradius3/sites-enabled/default
+comment out this lines.
+(In section: authenticate{..} ) 
+Auth-Type PAP {
+    pap
+}
+Auth-Type CHAP {
+    chap
+}
+ digest
+(In section: authorize{..} ) 
+preprocess
+chap
+digest
+expiration
+logintime
+pap
+(In section: preact {...} )
+preprocess
+(In section: accounting {...} )
+detail
+unix
+exec
+attr_filter.accounting_response
+(In section: post-auth {...} )
+exec
+(In section: post-auth {Post-Auth-Type REJECT{...}..} )
+attr_filter.access_reject
+```
+```
+modify /etc/freeradius3/sites-enabled/inner-tunnel
+comment out this lines.
+(In section: authenticate{..} ) 
+Auth-Type PAP {
+    pap
+}
+Auth-Type CHAP {
+    chap
+}
+(In section: authorize{..} ) 
+chap
+expiration
+logintime
+pap
+(In section: session{..} ) 
+radutmp
+(In section: post-auth {Post-Auth-Type REJECT{...}..}  )
+attr_filter.access_reject
+```
+Router space usage: overlay used:29%,free:8.5M
+
+### modify /etc/freeradius3/clients.conf
+```
+modify section: client localhost {...} , "secret = testing123", or add a section.
+client 192.168.2.0/24 {
+    ipaddr = 192.168.2.0/24
+    secret = testing123  (radius shared pwd)
+}
+
+```
+
+### test peap-mschapv2:
+`opkg install eapol-test `
+Router space usage: overlay used:32%,free:8.2M
+Write file: test-peap
+```
+network={
+        ssid="example"
+        key_mgmt=WPA-EAP
+        eap=PEAP
+        identity="bob"
+        anonymous_identity="anonymous"
+        password="hello"
+        phase2="autheap=MSCHAPV2"
+   # 打开下面这行，在openwrt中测试不能通过。但在centos中测试就OK。
+   # 怀疑openwrt中的eapol_test是个简版。也许安装eapol-test-openssl可以，我没试。
+   #   ca_cert="/etc/freeradius3/certs/ca.pem"
+}
+```
+执行，
+`eapol_test -c test-peap -s testing123 `
+其中 testing123 为 /etc/freeradius3/clients.conf 中的radius共享密钥。
+**看到最后一行为 SUCCESS 就测试成功。**
+### 配置WIFI，启动radiusd服务
+在openwrt的web管理页面，启动radiusd服务。
+配置2.4G和5G的WiFi，设置"无线加密"为"WPA2-EAP"，"算法"为"AES"。
+提供给"手机"，"电脑"，等支持企业认证的设备连接使用。
+/etc/freeradius3/mod-config/files/authorize文件中的账号多设置几个。
+家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。
+
+另外在2.4G WiFi中增加一个SSID，"无线加密"为"WPA2-PSK"，"算法"为"AES"。
+家里总有几个非智能设备不支持企业认证。这些设备一般只支持2.4G，不支持5G。
+比如"远程遥控插座"，"扫地机器人"，……
+
+> **有大神说碰到[如下情况](https://www.right.com.cn/FORUM/forum.php?mod=viewthread&tid=259345)，我没碰到。但也写在这留作参考。**
+> **我没修改这行，测试就通过了。**
+> 如果失败原因是 “The users session was previously rejected” ，
+> 而且往上翻日志翻来覆去就是找不出原因，请尝试：
+在 /etc/freeradius3/sites-available/inner-tunnel 中，第 220 行附近，有一段配置项：
+> Auth-Type MS-CHAP {
+>    mschap
+> }
+> 改为
+> Auth-Type MSCHAP {
+>    mschap
+> }
+
+---------------
+
+==================
+## 继续搞 EAP-TLS
+因为在openwrt中用eapol_test使用证书测试，无法通过。也许安装eapol-test-openssl可以，我没试。
+我换用CentOS中的eapol_test 来测试。
+```
+opkg update
+opkg install freeradius3-mod-eap-tls
+```
+### 修改 /etc/freeradius3/mods-enabled/eap
+```
+对之前注释掉的 tls {...} 打开注释。应该是这样的。
+tls {
+    tls = tls-common
+}
+```
+停止服务
+`/etc/init.d/radiusd  stop `
+测试
+` radiusd -X `
+没有错误就按 `CTRL-C` 终止
+启动服务 ` /etc/init.d/radiusd start `
+### 制作用户测试证书，[正式使用可以参考这篇文章,创建漂亮的证书](https://www.cnblogs.com/osnosn/p/10597897.html)。
+```
+cd /etc/freeradius3/certs/
+openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -out userec.csr
+## commonName: 不能留空
+openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecca.crt -keyfile ecca.key
+```
+Router space usage: overlay used:32%,free:8.2M
+<a target="_blank" href="https://img2018.cnblogs.com/blog/1641467/201907/1641467-20190715120216818-261902967.png"><img src="https://img2018.cnblogs.com/blog/1641467/201907/1641467-20190715120216818-261902967.png" style="width:500px;border:1px solid #000" />
+</a>
+正式使用还要生成crl.pem，` cat ca.crt  crl.pem > ca.pem `
+并打开 /etc/freeradius3/mod-enabled/eap 文件中 check_crl = yes 的注释
+
+#### eapol_test 测试
+参考：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)
+写文件 test-tls
+```
+network={
+    eap=TLS
+    eapol_flags=0
+    key_mgmt=IEEE8021X
+    identity="test"
+    password="test123"
+
+    ca_cert="/etc/freeradius3/certs/ca.pem"
+    client_cert="/etc/freeradius3/certs/userec.crt"
+    private_key="/etc/freeradius3/certs/userec.key"
+    #private_key_passwd="whatever"
+}
+```
+执行 ` eapol_test  -c test-tls -s 'testing123' `
+
+去CentOS，Debian 或者 Ubuntu 之类的Linux 中 用 eapol_test 命令测试。一般是OK的。
+OpenWRT 中的 eapol_test 是怎么测试都通不过。大概是因为简化的太多了。也许安装eapol-test-openssl可以，我没试。
+
+freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。   
+另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。
+参考:[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration#.2Fetc.2Fraddb.2Fclients.conf)
+
+------------
+This is my config files.   
+`cat /etc/freeradius3/sites-enabled/default  |sed '/^$/d'|sed '/[\t]*#/d' `
+```
+server default {
+listen {
+        type = auth
+        ipaddr = *
+        port = 0
+        limit {
+              max_connections = 16
+              lifetime = 0
+              idle_timeout = 30
+        }
+}
+listen {
+        ipaddr = *
+        port = 0
+        type = acct
+        limit {
+        }
+}
+listen {
+        type = auth
+        port = 0
+        limit {
+              max_connections = 16
+              lifetime = 0
+              idle_timeout = 30
+        }
+}
+listen {
+        ipv6addr = ::
+        port = 0
+        type = acct
+        limit {
+        }
+}
+authorize {
+        filter_username
+        mschap
+        suffix
+        eap {
+                ok = return
+        }
+        files
+        -sql
+        -ldap
+}
+authenticate {
+        Auth-Type MS-CHAP {
+                mschap
+        }
+        eap
+}
+preacct {
+        acct_unique
+        suffix
+        files
+}
+accounting {
+        -sql
+}
+session {
+}
+post-auth {
+        update {
+                &reply: += &session-state:
+        }
+        -sql
+        remove_reply_message_if_eap
+        Post-Auth-Type REJECT {
+                -sql
+                eap
+                remove_reply_message_if_eap
+        }
+}
+pre-proxy {
+}
+post-proxy {
+        eap
+}
+}
+```
+`cat /etc/freeradius3/sites-enabled/inner-tunnel  |sed '/^$/d'|sed '/[\t]*#/d' `
+```
+server inner-tunnel {
+listen {
+       ipaddr = 127.0.0.1
+       port = 18120
+       type = auth
+}
+authorize {
+        filter_username
+        mschap
+        suffix
+        update control {
+                &Proxy-To-Realm := LOCAL
+        }
+        eap {
+                ok = return
+        }
+        files
+        -sql
+        -ldap
+}
+authenticate {
+        Auth-Type MS-CHAP {
+                mschap
+        }
+        eap
+}
+session {
+}
+post-auth {
+        -sql
+        Post-Auth-Type REJECT {
+                -sql
+                update outer.session-state {
+                        &Module-Failure-Message := &request:Module-Failure-Message
+                }
+        }
+}
+pre-proxy {
+}
+post-proxy {
+        eap
+}
+```
+`cat /etc/freeradius3/mods-enabled/eap  |sed '/^$/d'|sed '/[\t]*#/d' `
+```
+eap {
+        default_eap_type = peap
+        timer_expire     = 60
+        ignore_unknown_eap_types = no
+        cisco_accounting_username_bug = no
+        max_sessions = ${max_requests}
+        tls-config tls-common {
+                private_key_password = whatever
+                private_key_file = ${certdir}/server.pem
+                certificate_file = ${certdir}/server.pem
+                ca_file = ${cadir}/ca.pem
+                ca_path = ${cadir}
+                cipher_list = "DEFAULT"
+                ecdh_curve = "prime256v1"
+                cache {
+                        enable = yes
+                        max_entries = 255
+                }
+                verify {
+                }
+                ocsp {
+                        enable = no
+                        override_cert_url = yes
+                        url = "http://127.0.0.1/ocsp/"
+                }
+        }
+        tls {
+                tls = tls-common
+        }
+        peap {
+                tls = tls-common
+                default_eap_type = mschapv2
+                copy_request_to_tunnel = no
+                use_tunneled_reply = no
+                virtual_server = "inner-tunnel"
+        }
+        mschapv2 {
+        }
+}
+```
+`cat /etc/freeradius3/mods-config/files/authorize |sed '/^$/d'|sed '/[\t]*#/d' `
+```
+bob     Cleartext-Password := "hello"
+test    Cleartext-Password := "test123"
+DEFAULT Framed-Protocol == PPP
+        Framed-Protocol = PPP,
+        Framed-Compression = Van-Jacobson-TCP-IP
+DEFAULT Hint == "CSLIP"
+        Framed-Protocol = SLIP,
+        Framed-Compression = Van-Jacobson-TCP-IP
+DEFAULT Hint == "SLIP"
+        Framed-Protocol = SLIP
+```
+`cat /etc/freeradius3/clients.conf |sed '/^$/d'|sed '/[\t]*#/d' `
+```
+client localhost {
+        ipaddr = 127.0.0.1
+        proto = *
+        secret = testing123
+        require_message_authenticator = no
+        limit {
+                max_connections = 16
+                lifetime = 0
+                idle_timeout = 30
+        }
+}
+client localhost_ipv6 {
+        ipv6addr        = ::1
+        secret          = testing123
+}
+client 192.168.1.0/24 {
+        ipaddr = 192.168.1.0/24
+        secret = testing123
+}
+```
+
+------------
+References:   
+[openwrt 编译newifi 应用程序](https://www.cnblogs.com/diylab/p/6021432.html),    
+[Newifi-mini OpenWrt 下 EAP-PEAP,EAP-TLS 企业级无线认证及 FreeRadius3](https://www.cnblogs.com/osnosn/p/11186646.html)   
+
+----
