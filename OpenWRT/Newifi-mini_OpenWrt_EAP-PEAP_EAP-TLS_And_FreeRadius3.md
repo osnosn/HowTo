@@ -60,8 +60,7 @@ cat ecca.crt > ca.pem
 ```
 
 ### Run "radiusd -X" according to error msg(red color) shows filename & line number. comment it out.
-<a target="_blank" href="https://github.com/osnosn/HowTo/raw/master/OpenWRT/op2a.png"><img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/op2a.png" style="width:500px;border:1px solid #000" />
-</a>
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius1.png" width="400" />
 
 ```
 modify /etc/freeradius3/sites-enabled/default
@@ -202,8 +201,7 @@ openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -ou
 openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecca.crt -keyfile ecca.key
 ```
 Router space usage: overlay used:32%,free:8.2M
-<a target="_blank" href="https://github.com/osnosn/HowTo/raw/master/OpenWRT/op3.png"><img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/op3.png" style="width:500px;border:1px solid #000" />
-</a>
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />
 正式使用还要生成crl.pem，` cat ca.crt  crl.pem > ca.pem `
 并打开 /etc/freeradius3/mod-enabled/eap 文件中 check_crl = yes 的注释
 
