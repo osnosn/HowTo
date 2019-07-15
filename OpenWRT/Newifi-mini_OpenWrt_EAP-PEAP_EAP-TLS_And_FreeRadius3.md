@@ -35,7 +35,7 @@ comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...}
 + #dh_file = ${certdir}/dh
 ```
 
-### Create certs for test，[Or Reference to this article to create certs](https://www.cnblogs.com/osnosn/p/10597897.html)。
+### Create certs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)。
 `opkg install openssl-util `
 Router space usage: overlay used:29%,free:8.6M
 ```
@@ -193,7 +193,7 @@ tls {
 ` radiusd -X `
 没有错误就按 `CTRL-C` 终止   
 启动服务 ` /etc/init.d/radiusd start `   
-### 制作用户测试证书，[正式使用可以参考这篇文章,创建漂亮的证书](https://www.cnblogs.com/osnosn/p/10597897.html)。
+### 制作用户测试证书，[正式使用可以参考这篇文章,创建漂亮的证书](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)。
 ```
 cd /etc/freeradius3/certs/
 openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -out userec.csr
