@@ -4,4 +4,5 @@
 ## Howtos, Guides & Configuration notes.
 Here are the currently available documents :
 
-[OpenWRT](./OpenWRT/)
+* [OpenWRT](./OpenWRT/)
+* [OpenSSL](./OpenSSL/)
