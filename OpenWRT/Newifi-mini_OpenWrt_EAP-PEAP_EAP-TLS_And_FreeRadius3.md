@@ -27,7 +27,8 @@ opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freerad
 > freeradius3-mod-files (user & password)   
 > freeradius3-mod-eap-mschapv2 (peap needed)   
 
-### modify `/etc/freeradius3/mod-config/files/authorize` Add one or more line, like this：   
+### modify `/etc/freeradius3/mod-config/files/authorize` 
+Add one or more line, like this：    
 `bob     Cleartext-Password := "hello" `
 
 ### modify `/etc/freeradius3/mod-enabled/eap`   
