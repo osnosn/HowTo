@@ -9,4 +9,5 @@ Here are the currently available documents :
 * [OpenSSL](./OpenSSL/)
   * [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
   * [Create CERTs for WebServer using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_WebeServer_using_openssl.md)
-
+* [Linux](./Linux/)
+  * [CentOS7: using hostapd as a radius server to provide wifi 802.1x Enterprise Authentication](https://github.com/osnosn/HowTo/blob/master/Linux/CentOS7_hostapd_radius_WIFI_802.1x_EAP-PEAP_EAP-TLS_EnterpriseAuthentication.md)
