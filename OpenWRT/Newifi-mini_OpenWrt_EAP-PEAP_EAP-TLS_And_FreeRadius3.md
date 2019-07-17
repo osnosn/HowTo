@@ -39,7 +39,7 @@ comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...}
 + #dh_file = ${certdir}/dh
 ```
 
-#### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)。
+#### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
 ```
 ## ssh to router, run in shell mode
 opkg install openssl-util
@@ -205,7 +205,7 @@ tls {
 没有错误就按 `CTRL-C` 终止   
 启动服务 ` /etc/init.d/radiusd start `   
 
-### Create users CERTs for test，Or [Create CERTs for EAP-TLS using openssl]
+### Create users CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
 ```
 cd /etc/freeradius3/certs/
 openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -out userec.csr
@@ -219,7 +219,8 @@ openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecc
 并打开 /etc/freeradius3/mod-enabled/eap 文件中 check_crl = yes 的注释
 
 #### eapol_test 测试
-参考：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)   
+* 参考：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
+
 写文件 test-tls   
 ```
 network={
