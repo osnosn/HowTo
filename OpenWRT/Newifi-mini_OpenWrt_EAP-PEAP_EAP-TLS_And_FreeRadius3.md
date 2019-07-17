@@ -5,28 +5,32 @@ Written in 2019-07-15.
 I'm using: OpenWrt-18.06.4   
 bin file: http://downloads.openwrt.org/releases/18.06.4/targets/ramips/mt7620/openwrt-18.06.4-ramips-mt7620-y1-squashfs-sysupgrade.bin
 
+**ssh to router, execute command and modify config file in shell mode.**
 ```
+## ssh to router, run in shell mode
 opkg update (Get newest list)
 opkg remove wpad-mini
 opkg install wpad  (Support WPA2-EAP,WPA2 802.1x on openwrt's wifi) 
 ```
-Router space usage: overlay used:10%,free 10.9M   
-`opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freeradius3-mod-realm freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-eap-mschapv2`
+> Router space usage: overlay used:10%,free 10.9M 
 
-Router space usage: overlay used:27%,free:8.8M
+```
+## ssh to router, run in shell mode
+opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freeradius3-mod-realm freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-eap-mschapv2
+```
+> Router space usage: overlay used:27%,free:8.8M
 
+> freeradius3-mod-eap-peap (peap)   
+> freeradius3-mod-always (reject)   
+> freeradius3-mod-realm (suffix)   
+> freeradius3-mod-expr (expression)   
+> freeradius3-mod-files (user & password)   
+> freeradius3-mod-eap-mschapv2 (peap needed)   
 
-freeradius3-mod-eap-peap (peap)   
-freeradius3-mod-always (reject)   
-freeradius3-mod-realm (suffix)   
-freeradius3-mod-expr (expression)   
-freeradius3-mod-files (user & password)   
-freeradius3-mod-eap-mschapv2 (peap needed)   
-
-modify `/etc/freeradius3/mod-config/files/authorize` Add one or more line, like this：   
+#### modify `/etc/freeradius3/mod-config/files/authorize` Add one or more line, like this：   
 `bob     Cleartext-Password := "hello" `
 
-modify `/etc/freeradius3/mod-enabled/eap`   
+#### modify `/etc/freeradius3/mod-enabled/eap`   
 ```
 - default_eap_type = md5  
 + default_eap_type = peap 
@@ -35,10 +39,15 @@ comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...}
 + #dh_file = ${certdir}/dh
 ```
 
-### Create certs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)。
-`opkg install openssl-util `
-Router space usage: overlay used:29%,free:8.6M
+#### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)。
 ```
+## ssh to router, run in shell mode
+opkg install openssl-util
+```
+> Router space usage: overlay used:29%,free:8.6M
+
+```
+## ssh to router, run in shell mode
 cd /etc/freeradius3/certs/
 openssl ecparam -name prime256v1 -out ec_param
 openssl req -nodes -newkey ec:ec_param -days 3650 -x509 -sha256 -keyout ecca.key -out ecca.crt
@@ -62,6 +71,7 @@ cat ecca.crt > ca.pem
 ### Run "radiusd -X" according to error msg(red color) shows filename & line number. comment it out.
 <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius1.png" width="400" />
 
+according to `radiusd -X` error msg, I was comment out this lines: 
 ```
 modify /etc/freeradius3/sites-enabled/default
 comment out this lines.
@@ -112,9 +122,9 @@ radutmp
 (In section: post-auth {Post-Auth-Type REJECT{...}..}  )
 attr_filter.access_reject
 ```
-Router space usage: overlay used:29%,free:8.5M
+> Router space usage: overlay used:29%,free:8.5M
 
-### modify /etc/freeradius3/clients.conf
+#### modify /etc/freeradius3/clients.conf
 ```
 modify section: client localhost {...} , "secret = testing123", or add a section.
 client 192.168.2.0/24 {
@@ -124,9 +134,10 @@ client 192.168.2.0/24 {
 
 ```
 
-### test peap-mschapv2:
+#### test peap-mschapv2:
 `opkg install eapol-test `
-Router space usage: overlay used:32%,free:8.2M
+> Router space usage: overlay used:32%,free:8.2M
+
 Write file: test-peap
 ```
 network={
@@ -146,6 +157,7 @@ network={
 `eapol_test -c test-peap -s testing123 `
 其中 testing123 为 /etc/freeradius3/clients.conf 中的radius共享密钥。
 **看到最后一行为 SUCCESS 就测试成功。**
+
 ### 配置WIFI，启动radiusd服务
 在openwrt的web管理页面，启动radiusd服务。   
 配置2.4G和5G的WiFi，设置"无线加密"为"WPA2-EAP"，"算法"为"AES"。    
@@ -172,15 +184,14 @@ network={
 
 ---------------
 
-==================
-## 继续搞 EAP-TLS
+## config for EAP-TLS
 因为在openwrt中用eapol_test使用证书测试，无法通过。也许安装eapol-test-openssl可以，我没试。   
 我换用CentOS中的eapol_test 来测试。
 ```
 opkg update
 opkg install freeradius3-mod-eap-tls
 ```
-### 修改 /etc/freeradius3/mods-enabled/eap
+#### 修改 /etc/freeradius3/mods-enabled/eap
 ```
 对之前注释掉的 tls {...} 打开注释。应该是这样的。
 tls {
@@ -193,15 +204,17 @@ tls {
 ` radiusd -X `
 没有错误就按 `CTRL-C` 终止   
 启动服务 ` /etc/init.d/radiusd start `   
-### 制作用户测试证书，[正式使用可以参考这篇文章,创建漂亮的证书](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)。
+
+### Create users CERTs for test，Or [Create CERTs for EAP-TLS using openssl]
 ```
 cd /etc/freeradius3/certs/
 openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -out userec.csr
 ## commonName: 不能留空
 openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecca.crt -keyfile ecca.key
 ```
-Router space usage: overlay used:32%,free:8.2M    
-<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />   
+> Router space usage: overlay used:32%,free:8.2M    
+> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />   
+
 正式使用还要生成crl.pem，` cat ca.crt  crl.pem > ca.pem `   
 并打开 /etc/freeradius3/mod-enabled/eap 文件中 check_crl = yes 的注释
 
