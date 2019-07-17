@@ -1,9 +1,8 @@
-## CentOS7: using hostapd as a radius server to provide wifi 802.1x Enterprise Authentication
+## [CentOS7: using hostapd as a radius server to provide wifi 802.1x Enterprise Authentication](https://github.com/osnosn/HowTo/blob/master/Linux/CentOS7_hostapd_radius_WIFI_802.1x_EAP-PEAP_EAP-TLS_EnterpriseAuthentication.md)
 support EAP-PEAP,EAP-TLS.
 
 ## [CentOS7用hostapd做radius服务器为WiFi提供802.1X企业认证](https://www.cnblogs.com/osnosn/p/10593297.html)
-支持 EAP-PEAP, EAP-TLS   
-写于: 2019-03-27.
+支持 EAP-PEAP, EAP-TLS。   写于: 2019-03-27.
 
 支持 EAP-PEAP(msCHAPv2) 用户账号认证。用户账号存于文本文件中。   
 EAP-TLS证书认证，证书自行生成，可以吊销单个证书而阻止再次连接。
