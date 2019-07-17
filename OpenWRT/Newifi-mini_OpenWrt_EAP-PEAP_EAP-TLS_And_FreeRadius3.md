@@ -168,6 +168,10 @@ network={
 ```
 ## in shell mode, run
 eapol_test -c test-peap -s testing123
+## or 
+eapol_test -c test-peap -a <your radius IP> -s testing123
+## or 
+eapol_test -c test-peap -a <your radius IP> -p<port> -s testing123
 ```
 "testing123" is password in file /etc/freeradius3/clients.conf   
 **If see "SUCCESS" in last line, then test OK.**   
@@ -256,7 +260,7 @@ network={
     #private_key_passwd="whatever"
 }
 ```
-run in CentOS's shell mode ` eapol_test  -c test-tls -s 'testing123' `   
+run in CentOS's shell mode ` eapol_test -c test-tls -a <your radius/router IP> -s 'testing123' `   
 you will see "SUCCEED", it means every thing goes OK. 
 
 -----
