@@ -141,7 +141,7 @@ attr_filter.access_reject
 modify section: client localhost {...} , "secret = testing123", or add a section.
 client 192.168.2.0/24 {
     ipaddr = 192.168.2.0/24
-    secret = testing123  (radius shared pwd)
+    secret = testing123  (Radius-Authentication-Secret)
 }
 
 ```
@@ -173,7 +173,7 @@ eapol_test -c test-peap -a 127.0.0.1 -s testing123
 ## or 
 eapol_test -c test-peap -a 127.0.0.1 -p 1812 -s testing123
 ```
-"testing123" is password in file /etc/freeradius3/clients.conf   
+"testing123" is secret in file /etc/freeradius3/clients.conf   
 **If see "SUCCESS" in last line, then test OK.**   
 logout from ssh. all done.   
 ### config WIFI, start radiusd service
@@ -187,7 +187,7 @@ set one or more user&password in file "/etc/freeradius3/mod-config/files/authori
 家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。   
 
 Normally, you need another 2.4G WiFi, add a new SSID，   
-set "wireless encryption" to "WPA2-PSK"，"Algorithm" to "AES", and set "shared secret key".   
+set "wireless encryption" to "WPA2-PSK"，"Algorithm" to "AES", and set "secret key".   
 Use for devices, that not support "enterprise Authentication".   
 比如"远程遥控插座"，"扫地机器人"，……   
 
