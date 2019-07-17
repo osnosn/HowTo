@@ -27,10 +27,10 @@ opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freerad
 > freeradius3-mod-files (user & password)   
 > freeradius3-mod-eap-mschapv2 (peap needed)   
 
-#### modify `/etc/freeradius3/mod-config/files/authorize` Add one or more line, like this：   
+### modify `/etc/freeradius3/mod-config/files/authorize` Add one or more line, like this：   
 `bob     Cleartext-Password := "hello" `
 
-#### modify `/etc/freeradius3/mod-enabled/eap`   
+### modify `/etc/freeradius3/mod-enabled/eap`   
 ```
 - default_eap_type = md5  
 + default_eap_type = peap 
@@ -39,7 +39,7 @@ comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...}
 + #dh_file = ${certdir}/dh
 ```
 
-#### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
+### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
 ```
 ## ssh to router, run in shell mode
 opkg install openssl-util
@@ -135,7 +135,7 @@ attr_filter.access_reject
 ```
 > Router space usage: overlay used:29%,free:8.5M
 
-#### modify /etc/freeradius3/clients.conf
+### modify /etc/freeradius3/clients.conf
 ```
 modify section: client localhost {...} , "secret = testing123", or add a section.
 client 192.168.2.0/24 {
@@ -145,7 +145,7 @@ client 192.168.2.0/24 {
 
 ```
 
-#### test peap-mschapv2:
+### test peap-mschapv2:
 `opkg install eapol-test `
 > Router space usage: overlay used:32%,free:8.2M
 
@@ -168,9 +168,9 @@ network={
 ## in shell mode, run
 eapol_test -c test-peap -s testing123
 ```
-"testing123" is password in file /etc/freeradius3/clients.conf 
-**If see "SUCCESS" in last line, then test OK.**
-logout from ssh. all done.
+"testing123" is password in file /etc/freeradius3/clients.conf   
+**If see "SUCCESS" in last line, then test OK.**   
+logout from ssh. all done.   
 ### config WIFI, start radiusd service
 In openwrt luci web page，enable & start radiusd service.   
 In 2.4G & 5G WiFi configuration, "无线加密"为"WPA2-EAP"，"算法"为"AES"。    
@@ -197,15 +197,15 @@ In 2.4G & 5G WiFi configuration, "无线加密"为"WPA2-EAP"，"算法"为"AES"�
 
 ---------------
 
-## config for EAP-TLS
+## config EAP-TLS support
 Because eapol_test fail in openwrt with CERTs.   
-I change to CentOS for test using eapol_test  
+I change to CentOS for test using eapol_test.  
 ```
 ## in openwrt's shell mode
 opkg update
 opkg install freeradius3-mod-eap-tls
 ```
-#### 修改 /etc/freeradius3/mods-enabled/eap
+### modify /etc/freeradius3/mods-enabled/eap
 ```
 ## uncomment tls {...} , like this:
 tls {
@@ -215,7 +215,7 @@ tls {
 stop service   
 `/etc/init.d/radiusd  stop `   
 test run  
-`radiusd -X `
+`radiusd -X `   
 if no error message, then press `CTRL-C` to stop test.   
 start service   
 `/etc/init.d/radiusd start `   
@@ -224,6 +224,8 @@ start service
 ```
 ## in openwrt's shell mode
 cd /etc/freeradius3/certs/
+
+## create user CERT
 openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -out userec.csr
 ## commonName: field must be set
 openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecca.crt -keyfile ecca.key
@@ -235,7 +237,7 @@ after test, you need generate crl.pem file using openssl, then
 `cat ca.crt  crl.pem > ca.pem `   
 and uncomment "check_crl = yes" in file "/etc/freeradius3/mod-enabled/eap".
 
-#### eapol_test 测试
+### eapol_test 
 * reference：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
 
 write file "test-tls"   
@@ -254,7 +256,7 @@ network={
 }
 ```
 run in CentOS's shell mode ` eapol_test  -c test-tls -s 'testing123' `   
-you will see "succeed SUCCEED", it means every thing goes OK. 
+you will see "SUCCEED", it means every thing goes OK. 
 
 -----
 reference:   
