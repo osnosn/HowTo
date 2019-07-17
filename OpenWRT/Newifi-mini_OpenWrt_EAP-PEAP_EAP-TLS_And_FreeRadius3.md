@@ -239,11 +239,13 @@ network={
 执行 ` eapol_test  -c test-tls -s 'testing123' `
 
 去CentOS，Debian 或者 Ubuntu 之类的Linux 中 用 eapol_test 命令测试。一般是OK的。   
-OpenWRT 中的 eapol_test 是怎么测试都通不过。大概是因为简化的太多了。也许安装eapol-test-openssl可以，我没试。   
+OpenWRT 中的 eapol_test 是怎么测试都通不过。大概是因为简化的太多了。也许安装eapol-test-openssl可以，我没试。 
 
-freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。      
-另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。   
-参考:[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration#.2Fetc.2Fraddb.2Fclients.conf)   
+-----
+
+* freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。      
+* 另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。   
+* 参考:[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration#.2Fetc.2Fraddb.2Fclients.conf)   
 
 ------------
 This is my config files.   
