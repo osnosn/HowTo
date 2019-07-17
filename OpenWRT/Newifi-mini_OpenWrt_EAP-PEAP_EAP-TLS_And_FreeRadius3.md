@@ -3,7 +3,7 @@
 Written in 2019-07-15.
 
 I'm using: OpenWrt-18.06.4   
-bin file: http://downloads.openwrt.org/releases/18.06.4/targets/ramips/mt7620/openwrt-18.06.4-ramips-mt7620-y1-squashfs-sysupgrade.bin
+firmware file: http://downloads.openwrt.org/releases/18.06.4/targets/ramips/mt7620/openwrt-18.06.4-ramips-mt7620-y1-squashfs-sysupgrade.bin
 
 **ssh to router, execute command and modify config file in shell mode.**
 ```
@@ -15,7 +15,7 @@ opkg install wpad  (Support WPA2-EAP,WPA2 802.1x on openwrt's wifi)
 > Router space usage: overlay used:10%,free 10.9M 
 
 ```
-## ssh to router, run in shell mode
+## ssh to router, run in shell mode, install freeradius3
 opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freeradius3-mod-realm freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-eap-mschapv2
 ```
 > Router space usage: overlay used:27%,free:8.8M
@@ -47,21 +47,24 @@ opkg install openssl-util
 > Router space usage: overlay used:29%,free:8.6M
 
 ```
-## ssh to router, run in shell mode
+## ssh to router, run in shell mode. if no such directory, create it.
 cd /etc/freeradius3/certs/
+
+## create CA
 openssl ecparam -name prime256v1 -out ec_param
 openssl req -nodes -newkey ec:ec_param -days 3650 -x509 -sha256 -keyout ecca.key -out ecca.crt
 
-## server cert must use RSA, otherwise radius will fail to authorize.  
-## I guess: if use ECC in server cert, maybe need "dh_file=". I don't known.
+## create server CERT. server CERT must use RSA, otherwise radius will fail to authorize.  
+## I guess: if use ECC in server CERT, maybe need "dh_file=". I don't known.
 openssl req -nodes -newkey rsa:1024 -days 3650 -sha256 -keyout serverec.key -out serverec.csr
-## commonName: Must SET
+## commonName: field Must be SET
 mkdir ./demoCA/
 mkdir ./demoCA/newcerts
 touch ./demoCA/index.txt
 echo 01 > ./demoCA/serial
 openssl ca -extensions v3_ca -days 3650 -out serverec.crt -in serverec.csr -cert ecca.crt -keyfile ecca.key
 ## view cert：openssl x509 -in serverec.crt -noout -text
+
 cat serverec.key serverec.crt > server.pem
 cat ecca.crt > ca.pem
 ## After test(EAP-TLS need CRL。EAP-PEAP no need CRL), cat ecca.crt crl.pem > ca.pem
@@ -82,7 +85,8 @@ Auth-Type PAP {
 Auth-Type CHAP {
     chap
 }
- digest
+digest
+
 (In section: authorize{..} ) 
 preprocess
 chap
@@ -90,15 +94,19 @@ digest
 expiration
 logintime
 pap
+
 (In section: preact {...} )
 preprocess
+
 (In section: accounting {...} )
 detail
 unix
 exec
 attr_filter.accounting_response
+
 (In section: post-auth {...} )
 exec
+
 (In section: post-auth {Post-Auth-Type REJECT{...}..} )
 attr_filter.access_reject
 ```
@@ -112,13 +120,16 @@ Auth-Type PAP {
 Auth-Type CHAP {
     chap
 }
+
 (In section: authorize{..} ) 
 chap
 expiration
 logintime
 pap
+
 (In section: session{..} ) 
 radutmp
+
 (In section: post-auth {Post-Auth-Type REJECT{...}..}  )
 attr_filter.access_reject
 ```
@@ -148,19 +159,21 @@ network={
         anonymous_identity="anonymous"
         password="hello"
         phase2="autheap=MSCHAPV2"
-   # 打开下面这行，在openwrt中测试不能通过。但在centos中测试就OK。
-   # 怀疑openwrt中的eapol_test是个简版。也许安装eapol-test-openssl可以，我没试。
+   # if uncomment line below，test failue in openwrt shell mode. but test OK in CentOS.
+   # I guess eapol_test in openwrt is not full version. Maybe eapol-test-openssl better, I'm not try.
    #   ca_cert="/etc/freeradius3/certs/ca.pem"
 }
 ```
-执行，
-`eapol_test -c test-peap -s testing123 `
-其中 testing123 为 /etc/freeradius3/clients.conf 中的radius共享密钥。
-**看到最后一行为 SUCCESS 就测试成功。**
-
-### 配置WIFI，启动radiusd服务
-在openwrt的web管理页面，启动radiusd服务。   
-配置2.4G和5G的WiFi，设置"无线加密"为"WPA2-EAP"，"算法"为"AES"。    
+```
+## in shell mode, run
+eapol_test -c test-peap -s testing123
+```
+"testing123" is password in file /etc/freeradius3/clients.conf 
+**If see "SUCCESS" in last line, then test OK.**
+logout from ssh. all done.
+### config WIFI, start radiusd service
+In openwrt luci web page，enable & start radiusd service.   
+In 2.4G & 5G WiFi configuration, "无线加密"为"WPA2-EAP"，"算法"为"AES"。    
 提供给"手机"，"电脑"，等支持企业认证的设备连接使用。   
 /etc/freeradius3/mod-config/files/authorize文件中的账号多设置几个。   
 家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。   
@@ -185,43 +198,47 @@ network={
 ---------------
 
 ## config for EAP-TLS
-因为在openwrt中用eapol_test使用证书测试，无法通过。也许安装eapol-test-openssl可以，我没试。   
-我换用CentOS中的eapol_test 来测试。
+Because eapol_test fail in openwrt with CERTs.   
+I change to CentOS for test using eapol_test  
 ```
+## in openwrt's shell mode
 opkg update
 opkg install freeradius3-mod-eap-tls
 ```
 #### 修改 /etc/freeradius3/mods-enabled/eap
 ```
-对之前注释掉的 tls {...} 打开注释。应该是这样的。
+## uncomment tls {...} , like this:
 tls {
     tls = tls-common
 }
 ```
-停止服务   
+stop service   
 `/etc/init.d/radiusd  stop `   
-测试   
-` radiusd -X `
-没有错误就按 `CTRL-C` 终止   
-启动服务 ` /etc/init.d/radiusd start `   
+test run  
+`radiusd -X `
+if no error message, then press `CTRL-C` to stop test.   
+start service   
+`/etc/init.d/radiusd start `   
 
 ### Create users CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
 ```
+## in openwrt's shell mode
 cd /etc/freeradius3/certs/
 openssl req -nodes -newkey ec:ec_param -days 3650 -sha256 -keyout userec.key -out userec.csr
-## commonName: 不能留空
+## commonName: field must be set
 openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecca.crt -keyfile ecca.key
 ```
 > Router space usage: overlay used:32%,free:8.2M    
 > <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />   
 
-正式使用还要生成crl.pem，` cat ca.crt  crl.pem > ca.pem `   
-并打开 /etc/freeradius3/mod-enabled/eap 文件中 check_crl = yes 的注释
+after test, you need generate crl.pem file using openssl, then   
+`cat ca.crt  crl.pem > ca.pem `   
+and uncomment "check_crl = yes" in file "/etc/freeradius3/mod-enabled/eap".
 
 #### eapol_test 测试
-* 参考：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
+* reference：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
 
-写文件 test-tls   
+write file "test-tls"   
 ```
 network={
     eap=TLS
@@ -236,13 +253,11 @@ network={
     #private_key_passwd="whatever"
 }
 ```
-执行 ` eapol_test  -c test-tls -s 'testing123' `
-
-去CentOS，Debian 或者 Ubuntu 之类的Linux 中 用 eapol_test 命令测试。一般是OK的。   
-OpenWRT 中的 eapol_test 是怎么测试都通不过。大概是因为简化的太多了。也许安装eapol-test-openssl可以，我没试。 
+run in CentOS's shell mode ` eapol_test  -c test-tls -s 'testing123' `   
+you will see "succeed SUCCEED", it means every thing goes OK. 
 
 -----
-
+reference:   
 * freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。      
 * 另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。   
 * 参考:[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration#.2Fetc.2Fraddb.2Fclients.conf)   
