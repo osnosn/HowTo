@@ -169,9 +169,9 @@ network={
 ## in shell mode, run
 eapol_test -c test-peap -s testing123
 ## or 
-eapol_test -c test-peap -a <your radius IP> -s testing123
+eapol_test -c test-peap -a 127.0.0.1 -s testing123
 ## or 
-eapol_test -c test-peap -a <your radius IP> -p<port> -s testing123
+eapol_test -c test-peap -a 127.0.0.1 -p 1812 -s testing123
 ```
 "testing123" is password in file /etc/freeradius3/clients.conf   
 **If see "SUCCESS" in last line, then test OK.**   
