@@ -178,12 +178,15 @@ eapol_test -c test-peap -a <your radius IP> -p<port> -s testing123
 logout from ssh. all done.   
 ### config WIFI, start radiusd service
 In openwrt luci web page，enable & start radiusd service.   
-In 2.4G & 5G WiFi configuration, set "wireless encryption" to "WPA2-EAP", "Algorithm" to "AES"    
+In 2.4G & 5G WiFi configuration,   
+set "wireless encryption" to "WPA2-EAP", "Algorithm" to "AES"    
+set "radius IP" to "127.0.0.1", "port" to "1812".
 Provides to the Phones, computers, laptops, that support "enterprise Authentication"
 set one or more user&password in file "/etc/freeradius3/mod-config/files/authorize"   
 家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。   
 
-Normally, you need another 2.4G WiFi, add a new SSID，set "wireless encryption" to "WPA2-PSK"，"Algorithm" to "AES".   
+Normally, you need another 2.4G WiFi, add a new SSID，   
+set "wireless encryption" to "WPA2-PSK"，"Algorithm" to "AES", and set "shared secret key".   
 Use for devices, that not support "enterprise Authentication".   
 比如"远程遥控插座"，"扫地机器人"，……   
 
