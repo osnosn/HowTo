@@ -1,6 +1,6 @@
-## Create CERTs for EAP-TLS using OpenSSL
+## [Create CERTs for EAP-TLS using OpenSSL](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
 ## [用openssl为EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://www.cnblogs.com/osnosn/p/10597897.html)
-**来源: [https://www.cnblogs.com/osnosn/p/10597897.html](https://www.cnblogs.com/osnosn/p/10597897.html)  来自[osnosn的博客](https://www.cnblogs.com/osnosn/)**
+**来源: https://www.cnblogs.com/osnosn/p/10597897.html**
 写于: 2019-03-27.   
 
 > 本文参考了大神的文章:   
