@@ -17,12 +17,12 @@ default_ca = hostapd
 
 [ hostapd ]
 dir = .
-serial = $dir/0serial
-database = $dir/2indexdb.txt
+serial = $dir/2db/0serial
+database = $dir/2db/2indexdb.txt
 new_certs_dir = $dir/3certs_new
 certificate = $dir/ca_cert.pem
 private_key = $dir/ca_key.pem
-RANDFILE = /dev/urandom
+RANDFILE = $dir/2db/.random_state
 
 default_bits = 4096
 default_days = 36500
