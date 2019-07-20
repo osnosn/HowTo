@@ -68,10 +68,10 @@ fi
 if [ -d 4export ]; then
         rm -f 4export/*
 fi
-if [ -f 0serial ]; then
+if [ -f 2db/0serial ]; then
         rm -f 2db/0serial.old
 fi
-if [ -f 2indexdb.txt ]; then
+if [ -f 2db/2indexdb.txt ]; then
         cat /dev/null > 2db/2indexdb.txt
         rm -f 2db/2indexdb.txt.attr 2db/2indexdb.txt.attr.old 2db/2indexdb.txt.old
 fi
