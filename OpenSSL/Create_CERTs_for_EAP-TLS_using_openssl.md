@@ -137,7 +137,7 @@ exportdir="4export"
 
 echo "Self-sign the root CA..."
 echo "No Root CA key found. Generating one"
-openssl req -x509 -nodes -days 36500 -newkey ${keytype} -keyout ca_key.pem -out ca_cert.pem -new -sha512 -config openssl.cnf -extensions v3_ca -rand /dev/urandom -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=Wifi EAP Root CA/"  && \
+openssl req -x509 -nodes -days 36500 -newkey ${keytype} -keyout ca_key.pem -out ca_cert.pem -new -sha512 -config openssl.cnf -extensions v3_ca -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=Wifi EAP Root CA/"  && \
 openssl x509 -outform der -in ca_cert.pem -out ./${exportdir}/CA.crt  && \
 openssl x509 -in ca_cert.pem -noout -text > ca_cert.txt
 echo "You may now run ./new-server.sh"
@@ -180,7 +180,7 @@ esac
 echo "Create server ssl for hostapd."
 echo "No Server key found. Generating one."
 
-openssl req -nodes -new -newkey ${keytype} -keyout server_key.pem -out server_csr.pem -config openssl.cnf -rand /dev/urandom -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi Radius Server/"  && \
+openssl req -nodes -new -newkey ${keytype} -keyout server_key.pem -out server_csr.pem -config openssl.cnf -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi Radius Server/"  && \
 openssl ca -days 36500 -in server_csr.pem -out server_cert.pem -config openssl.cnf -extensions server_cert -batch  && \
 rm -rf server_csr.pem
 echo "You may now run ./create_crl.sh"
