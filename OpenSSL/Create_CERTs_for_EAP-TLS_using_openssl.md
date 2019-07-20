@@ -179,8 +179,8 @@ esac
 echo "Create server ssl for hostapd."
 echo "No Server key found. Generating one."
 
-openssl req -nodes -new -days 36500 -newkey ${keytype} -keyout server_key.pem -out server_csr.pem -config openssl.cnf -rand /dev/urandom -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi Radius Server/"  && \
-openssl ca -in server_csr.pem -out server_cert.pem -config openssl.cnf -extensions server_cert  && \
+openssl req -nodes -new -newkey ${keytype} -keyout server_key.pem -out server_csr.pem -config openssl.cnf -rand /dev/urandom -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi Radius Server/"  && \
+openssl ca -days 36500 -in server_csr.pem -out server_cert.pem -config openssl.cnf -extensions server_cert -batch  && \
 rm -rf server_csr.pem
 echo "You may now run ./create_crl.sh"
 echo ""
@@ -191,8 +191,8 @@ new-user.sh
 #!/bin/sh
 # new-user.sh
 # Create the user key and cert. This should be done once per cert.
-if [ $# -ne 2 ]; then
-   echo -e "\nUsage: $0  {rsa2048|rsa4096|ec256|ec384}  userName\n"
+if [ $# -ne 3 ]; then
+   echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days\n    days between 2 and 365\n"
    exit 1
 fi
 CERT=$2
@@ -202,6 +202,9 @@ if [ -f user_certs/user_${CERT}_key.pem ]; then
 fi
 keytype=""
 case "$1" in
+   "rsa1024")
+      keytype="rsa:1024"
+      ;;
    "rsa2048")
       keytype="rsa:2048"
       ;;
@@ -222,13 +225,21 @@ case "$1" in
       ;;
 esac
 
+DAYS=${3:-1}  # default 1
+if [ "${DAYS}" -gt 365 -o "${DAYS}" -lt 2 ]; then
+   if [ "${DAYS}" -ne 36500 ];then
+      echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days\n    days between 2 and 365\n"
+      exit 1
+   fi
+fi
+
 exportdir="4export"
 
-openssl req -nodes -new -days 36500 -newkey ${keytype} -keyout user_certs/user_${CERT}_key.pem -out user_certs/user_${CERT}_csr.pem -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi ${CERT}/" && \
-openssl ca -in user_certs/user_${CERT}_csr.pem -out user_certs/user_${CERT}_cert.pem -config openssl.cnf -extensions user_cert && \
+openssl req -nodes -new -newkey ${keytype} -keyout user_certs/user_${CERT}_key.pem -out user_certs/user_${CERT}_csr.pem -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi ${CERT}/" && \
+openssl ca -days ${DAYS} -in user_certs/user_${CERT}_csr.pem -out user_certs/user_${CERT}_cert.pem -config openssl.cnf -extensions user_cert -batch && \
 rm -rf user_certs/user_${CERT}_csr.pem && \
 echo -e "Export certs...\n \"Export Password\" MUST set for IOS.\n \"Export Password\" MAY empty for Android,windows."  && \
-openssl pkcs12 -export -out ./${exportdir}/${CERT}.p12 -inkey user_certs/user_${CERT}_key.pem -in user_certs/user_${CERT}_cert.pem -certfile ca_cert.pem -caname "Wifi EAP RootCA" -name "${CERT}-wifi-user"
+openssl pkcs12 -export -out ./${exportdir}/${CERT}.p12 -inkey user_certs/user_${CERT}_key.pem -in user_certs/user_${CERT}_cert.pem -certfile ca_cert.pem -caname "Wifi EAP RootCA" -name "${CERT}-wifi-user" -passout pass:123
 # 友好名称 "-name" "-caname" windows中不支持utf8中文
 
 echo ""
@@ -393,8 +404,8 @@ Android不认pem格式中的密钥，只认公钥。导致没密钥不能用于�
 > ./create_crl.sh   
 > ./copy-pem-to.sh  hostapd_conf_dir/  
 > service restart hostapd  
-> ./new-user.sh  ec256  user1   
-> ./new-user.sh  ec256  user2   
+> ./new-user.sh  ec256  user1  36500   
+> ./new-user.sh  ec256  user2  36500   
 > copy xx.p12 file from "4export/" 目录，分发给用户。   
 
 ---------------end---------------
