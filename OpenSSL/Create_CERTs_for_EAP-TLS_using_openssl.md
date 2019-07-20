@@ -14,8 +14,8 @@
 -->开始。按以下路径建立文件，脚本。   
 ```
 ssl_create-cert/   <-- 这个目录, 自己随便取名
-   |_  0serial
-   |_  2indexdb.txt
+   |_  2db/0serial
+   |_  2db/2indexdb.txt
    |_  3certs_new/
    |_  4export/
    |_  clear_all_cert.sh
@@ -29,9 +29,10 @@ ssl_create-cert/   <-- 这个目录, 自己随便取名
    |_  openssl.cnf
    |_  README
  ```
-`echo "2233AA1234" > 0serial` 证书序列号，自己随便编，十六进制数。
+`mkdir 2db` 创建目录。
+`echo "2233AA1234" > 2db/0serial` 证书序列号，自己随便编，十六进制数。
 
-`cat /dev/null > 2indexdb.txt`  
+`cat /dev/null > 2db/2indexdb.txt`  
 > 此文件必须是0字节，否则openssl会报错  
 > `wrong number of fields on line 1 (looking for field 6, got 1, '' left)`  
 
@@ -68,11 +69,11 @@ if [ -d 4export ]; then
         rm -f 4export/*
 fi
 if [ -f 0serial ]; then
-        rm -f 0serial.old
+        rm -f 2db/0serial.old
 fi
 if [ -f 2indexdb.txt ]; then
-        cat /dev/null > 2indexdb.txt
-        rm -f 2indexdb.txt.attr 2indexdb.txt.attr.old 2indexdb.txt.old
+        cat /dev/null > 2db/2indexdb.txt
+        rm -f 2db/2indexdb.txt.attr 2db/2indexdb.txt.attr.old 2db/2indexdb.txt.old
 fi
 echo -e "ALL cert files removed."
 echo "You may now run ./new-ca.sh to get start"
@@ -278,12 +279,12 @@ default_ca = hostapd
 
 [ hostapd ]
 dir = .
-serial = $dir/0serial
-database = $dir/2indexdb.txt
+serial = $dir/2db/0serial
+database = $dir/2db/2indexdb.txt
 new_certs_dir = $dir/3certs_new
 certificate = $dir/ca_cert.pem
 private_key = $dir/ca_key.pem
-RANDFILE = /dev/urandom
+RANDFILE = $dir/2db/.random_state
 
 default_bits = 4096
 default_days = 36500
