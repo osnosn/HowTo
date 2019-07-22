@@ -195,7 +195,7 @@ Use for devices, that not support "enterprise Authentication".
 > **我没修改这行，测试就通过了。**   
 > 如果失败原因是 “The users session was previously rejected” ，   
 > 而且往上翻日志翻来覆去就是找不出原因，请尝试：   
-> 在 /etc/freeradius3/sites-available/inner-tunnel 中，第 220 行附近，有一段配置项：   
+> 在 /etc/freeradius3/sites-available/inner-tunnel 中，`MS-CHAP`改为`MSCHAP`，第 220 行附近，有一段配置项：   
 > Auth-Type MS-CHAP {   
 >    mschap   
 > }   
@@ -245,6 +245,10 @@ openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecc
 after test, you need generate crl.pem file using openssl, then   
 `cat ca.crt  crl.pem > ca.pem `   
 and uncomment "check_crl = yes" in file "/etc/freeradius3/mods-enabled/eap".
+```
+- #check_crl = yes
++ check_crl = yes
+```
 
 ### eapol_test 
 * reference：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
