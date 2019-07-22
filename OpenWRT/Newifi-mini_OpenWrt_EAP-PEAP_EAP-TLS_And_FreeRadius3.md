@@ -217,7 +217,7 @@ opkg install freeradius3-mod-eap-tls
 ```
 ### modify /etc/freeradius3/mods-enabled/eap
 ```
-## uncomment tls {...} , like this:
+## uncomment tls {...} ,
 - #tls {
 - #   tls = tls-common
 - #}
