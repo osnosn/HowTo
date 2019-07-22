@@ -5,7 +5,7 @@ Written in 2019-03-28.
 * 不想用自签名证书，想在网上申请一个免费服务器证书，见这篇: **[去freessl.org申请免费ssl服务器证书](https://www.cnblogs.com/osnosn/p/10627969.html)**   
 
 以下内容是用自签名证书，为网站生成服务器证书。   
-照着这一篇**"[用openssl为EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://www.cnblogs.com/osnosn/p/10597897.html)"**，建立所有文件。   
+照着这一篇**"[用openssl为EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)"**，建立所有文件。   
 脚本可以生成RSA, ECC证书。运行时带参数指定类型。    
 
 其中openssl.cnf 按以下新增几行。用于匹配你的服务器域名，或者是IP。   
