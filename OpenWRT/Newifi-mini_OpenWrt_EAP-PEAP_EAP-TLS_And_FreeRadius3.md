@@ -218,9 +218,15 @@ opkg install freeradius3-mod-eap-tls
 ### modify /etc/freeradius3/mods-enabled/eap
 ```
 ## uncomment tls {...} , like this:
-tls {
-    tls = tls-common
-}
+- #tls {
+- #   tls = tls-common
+- #}
++ tls {
++    tls = tls-common
++ }
+
+- #check_crl = yes
++ check_crl = yes
 ```
 stop service   
 `/etc/init.d/radiusd  stop `   
