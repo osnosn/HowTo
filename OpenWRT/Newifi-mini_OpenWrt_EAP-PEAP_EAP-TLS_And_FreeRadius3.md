@@ -27,11 +27,11 @@ opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freerad
 > freeradius3-mod-files (user & password)   
 > freeradius3-mod-eap-mschapv2 (peap needed)   
 
-### modify `/etc/freeradius3/mod-config/files/authorize` 
+### modify `/etc/freeradius3/mods-config/files/authorize` 
 Add one or more line, like this：    
 `bob     Cleartext-Password := "hello" `
 
-### modify `/etc/freeradius3/mod-enabled/eap`   
+### modify `/etc/freeradius3/mods-enabled/eap`   
 ```
 - default_eap_type = md5  
 + default_eap_type = peap 
@@ -69,7 +69,7 @@ openssl ca -extensions v3_ca -days 3650 -out serverec.crt -in serverec.csr -cert
 cat serverec.key serverec.crt > server.pem
 cat ecca.crt > ca.pem
 ## After test(EAP-TLS need CRL。EAP-PEAP no need CRL), cat ecca.crt crl.pem > ca.pem
-## in "/etc/freeradius3/mod-enabled/eap" file, uncomment "check_crl = yes" 
+## in "/etc/freeradius3/mods-enabled/eap" file, uncomment "check_crl = yes" 
 ```
 
 ### Run "radiusd -X" according to error msg(red color) shows filename & line number. comment it out.
@@ -139,7 +139,7 @@ attr_filter.access_reject
 ### modify /etc/freeradius3/clients.conf
 ```
 modify section: client localhost {...} , "secret = testing123", or add a section.
-client 192.168.2.0/24 {
+client localnet {
     ipaddr = 192.168.2.0/24
     secret = testing123  (Radius-Authentication-Secret)
 }
@@ -183,7 +183,7 @@ set  "Encryption" to "WPA2-EAP", "Cipher" to "AES"
 set "Radius-Authentication-Server" to "127.0.0.1", "Radius-Authentication-Port" to "1812",   
 set "Radius-Authentication-Secret" to "testing123".
 Provides to the Phones, computers, laptops, that support "enterprise Authentication"
-set one or more user&password in file "/etc/freeradius3/mod-config/files/authorize"   
+set one or more user&password in file "/etc/freeradius3/mods-config/files/authorize"   
 家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。   
 
 Normally, you need another 2.4G WiFi, add a new SSID，   
@@ -244,7 +244,7 @@ openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecc
 
 after test, you need generate crl.pem file using openssl, then   
 `cat ca.crt  crl.pem > ca.pem `   
-and uncomment "check_crl = yes" in file "/etc/freeradius3/mod-enabled/eap".
+and uncomment "check_crl = yes" in file "/etc/freeradius3/mods-enabled/eap".
 
 ### eapol_test 
 * reference：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
