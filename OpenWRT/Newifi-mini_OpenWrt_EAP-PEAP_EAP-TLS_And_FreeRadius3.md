@@ -196,13 +196,14 @@ Use for devices, that not support "enterprise Authentication".
 > 如果失败原因是 “The users session was previously rejected” ，   
 > 而且往上翻日志翻来覆去就是找不出原因，请尝试：   
 > 在 /etc/freeradius3/sites-available/inner-tunnel 中，`MS-CHAP`改为`MSCHAP`，第 220 行附近，有一段配置项：   
-> Auth-Type MS-CHAP {   
->    mschap   
-> }   
-> 改为   
-> Auth-Type MSCHAP {   
->    mschap   
-> }   
+> ```
+> - Auth-Type MS-CHAP {   
+>      mschap   
+>   }   
+> + Auth-Type MSCHAP {   
+>      mschap   
+>   }
+> ```
 
 ---------------
 
