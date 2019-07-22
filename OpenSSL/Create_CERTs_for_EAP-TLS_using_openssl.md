@@ -1,13 +1,16 @@
 ## [Create CERTs for EAP-TLS using OpenSSL](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
 ## [用openssl为EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://www.cnblogs.com/osnosn/p/10597897.html)
-**来源: https://www.cnblogs.com/osnosn/p/10597897.html**
 写于: 2019-03-27.   
 
 > 本文参考了大神的文章:   
 > 　[搭建一个「最安全」的Wi-Fi网络](https://zhuanlan.zhihu.com/p/28927420)，[楠站](https://zenandidi.com/archives/948)，
 
-本文是为**"[CentOS7用hostapd做radius服务器为WiFi提供802.1X企业认证](https://www.cnblogs.com/osnosn/p/10593297.html)"** 中,WiFi的EAP-TLS认证,准备证书。   
-如果想为WEB服务器生成自签名证书,我补充了一篇笔记: **"[用openssl为WEB服务器生成证书](https://www.cnblogs.com/osnosn/p/10608455.html)"**。   
+本文是为
+* [CentOS7用hostapd做radius服务器为WiFi提供802.1X企业认证](https://github.com/osnosn/HowTo/blob/master/Linux/CentOS7_hostapd_radius_WIFI_802.1x_EAP-PEAP_EAP-TLS_EnterpriseAuthentication.md)
+* [Newifi-mini OpenWrt 下 EAP-PEAP,EAP-TLS 企业级无线认证及 FreeRadius3](https://github.com/osnosn/HowTo/blob/master/OpenWRT/Newifi-mini_OpenWrt_EAP-PEAP_EAP-TLS_And_FreeRadius3.md)
+
+WiFi的EAP-TLS认证,准备证书。   
+如果想为WEB服务器生成自签名证书,我补充了一篇笔记: **"[用openssl为WEB服务器生成证书](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_WebeServer_using_openssl.md)"**。   
 
 我用的是openssl-1.0.2k.    
 脚本支持生成RSA，ECC证书。   运行时带参数指定类型。   
