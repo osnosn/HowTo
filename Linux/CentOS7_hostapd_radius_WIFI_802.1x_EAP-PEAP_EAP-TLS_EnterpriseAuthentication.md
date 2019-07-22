@@ -8,10 +8,10 @@ support EAP-PEAP,EAP-TLS.
 EAP-TLS证书认证，证书自行生成，可以吊销单个证书而阻止再次连接。
 
 > 本文参考了几位大神的文章:   
-> 　[拒绝万能钥匙!教您用hostapd搭建一个企业级的Wi-Fi](https://zhuanlan.zhihu.com/p/28439127)，
-> 　[搭建一个「最安全」的Wi-Fi网络](https://zhuanlan.zhihu.com/p/28927420)，[楠站](https://zenandidi.com/?s=hostapd)，
-> 　[将hostapd作为radius服务器搭建EAP认证环境](https://www.cnblogs.com/claruarius/p/5902141.html)，
-> 　[802.1X企业级加密](https://www.cnblogs.com/sun3596209/p/3226832.html),
+> 　[拒绝万能钥匙!教您用hostapd搭建一个企业级的Wi-Fi](https://zhuanlan.zhihu.com/p/28439127)，  
+> 　[搭建一个「最安全」的Wi-Fi网络](https://zhuanlan.zhihu.com/p/28927420)，[楠站](https://zenandidi.com/?s=hostapd)，  
+> 　[将hostapd作为radius服务器搭建EAP认证环境](https://www.cnblogs.com/claruarius/p/5902141.html)，  
+> 　[802.1X企业级加密](https://www.cnblogs.com/sun3596209/p/3226832.html),  
 
 * 我用的是CentOS7.
 * `yum install hostapd` 我装的版本是2.6
