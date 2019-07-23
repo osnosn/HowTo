@@ -38,6 +38,9 @@ Add one or more line, like this：
 comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...} 
 - dh_file = ${certdir}/dh
 + #dh_file = ${certdir}/dh
+
+- #check_crl = yes
++ check_crl = yes
 ```
 
 ### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
@@ -66,10 +69,12 @@ echo 01 > ./demoCA/serial
 openssl ca -extensions v3_ca -days 3650 -out serverec.crt -in serverec.csr -cert ecca.crt -keyfile ecca.key
 ## view cert：openssl x509 -in serverec.crt -noout -text
 
+## create crl.pem
+openssl ca -gencrl -keyfile ecca.key -cert ecca.cert -out crl.pem -config openssl.cnf
+
 cat serverec.key serverec.crt > server.pem
-cat ecca.crt > ca.pem
-## After test(EAP-TLS need CRL。EAP-PEAP no need CRL), cat ecca.crt crl.pem > ca.pem
-## in "/etc/freeradius3/mods-enabled/eap" file, uncomment "check_crl = yes" 
+cat ecca.crt crl.pem > ca.pem
+## If only config EAP-PEAP, no need "crl.pem", no need "check_crl = yes". just "cat ecca.crt > ca.pem".
 ```
 
 ### Run "radiusd -X" according to error msg(red color) shows filename & line number. comment it out.
@@ -253,8 +258,8 @@ openssl ca -extensions v3_ca -days 3650 -out userec.crt -in userec.csr -cert ecc
 > Router space usage: overlay used:32%,free:8.2M    
 > <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius2.png" width="400" />   
 
-after test, you need generate crl.pem file using openssl, then   
-`cat ca.crt  crl.pem > ca.pem `   
+you need generate crl.pem file using openssl, then   
+`cat ecca.crt  crl.pem > ca.pem `   
 and uncomment "check_crl = yes" in file "/etc/freeradius3/mods-enabled/eap".
 ```
 - #check_crl = yes
