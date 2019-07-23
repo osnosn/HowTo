@@ -96,7 +96,7 @@ expiration
 logintime
 pap
 
-(In section: preact {...} )
+(In section: preacct {...} )
 preprocess
 
 (In section: accounting {...} )
