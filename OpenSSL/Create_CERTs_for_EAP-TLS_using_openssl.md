@@ -105,6 +105,27 @@ cp -i server_cert.pem $DIR
 cp -i server_key.pem  $DIR
 ```
 
+create-crl.sh
+```
+#!/bin/sh
+#./create-crl.sh
+
+if [ ! -f ca_key.pem ]; then
+        echo "CA not found. Exit."
+        exit
+fi
+if [ -f crl.pem ]; then
+        echo "CRL file found. Exit."
+        exit
+fi
+openssl ca -gencrl -keyfile ca_key.pem -cert ca_cert.pem -out crl.pem -config openssl.cnf && \
+cat ca_cert.pem crl.pem > ca_cert+crl.pem
+echo "copy file \"server_cert.pem\" \"server_key.pem\" \"ca_cert+crl.pem\" to hostapd dir."
+echo "And start service \"hostapd\"."
+
+echo ""
+```
+
 new-ca.sh
 ```
 #!/bin/sh
