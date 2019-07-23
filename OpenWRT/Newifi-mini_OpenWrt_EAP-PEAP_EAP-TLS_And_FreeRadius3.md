@@ -178,16 +178,20 @@ eapol_test -c test-peap -a 127.0.0.1 -p 1812 -s testing123
 logout from ssh. all done.   
 ### config WIFI, start radiusd service
 In openwrt luci web page，enable & start radiusd service.   
-In 2.4G & 5G WiFi configuration, in "wireless Security"   
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius3.png" width="300" />   
+Or "S50radiusd" file in directory "/etc/rc.d/" is enabled.   
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius5.png" width="300" />   
+In 2.4G & 5G WiFi configuration, in "Wireless Security"   
 set  "Encryption" to "WPA2-EAP", "Cipher" to "AES"    
 set "Radius-Authentication-Server" to "127.0.0.1", "Radius-Authentication-Port" to "1812",   
-set "Radius-Authentication-Secret" to "testing123".
-Provides to the Phones, computers, laptops, that support "enterprise Authentication"
+set "Radius-Authentication-Secret" to "testing123".   
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/openwrt-radius4.png" width="300" />   
+Provides to the Phones, computers, laptops, that support "enterprise Authentication".   
 set one or more user&password in file "/etc/freeradius3/mods-config/files/authorize"   
 家里人用一个，或者用证书登陆。其他人,用另外的账号，万一泄露，修改密码不影响家人设备联网。   
 
-Normally, you need another 2.4G WiFi, add a new SSID，   
-set "wireless encryption" to "WPA2-PSK"，"Algorithm" to "AES", and set "secret key".   
+Normally, you need another 2.4G WiFi, add a new SSID,   
+set "wireless encryption" to "WPA2-PSK", "Algorithm" to "AES", and set "secret key".   
 Use for devices, that not support "enterprise Authentication".   
 比如"远程遥控插座"，"扫地机器人"，……   
 
@@ -195,7 +199,7 @@ Use for devices, that not support "enterprise Authentication".
 > **我没修改这行，测试就通过了。**   
 > 如果失败原因是 “The users session was previously rejected” ，   
 > 而且往上翻日志翻来覆去就是找不出原因，请尝试：   
-> 在 /etc/freeradius3/sites-available/inner-tunnel 中，`MS-CHAP`改为`MSCHAP`，第 220 行附近，有一段配置项：   
+> 在 /etc/freeradius3/sites-available/inner-tunnel 中，`MS-CHAP`改为`MSCHAP`, 第 220 行附近，有一段配置项：   
 > ```
 > - Auth-Type MS-CHAP {   
 >      mschap   
