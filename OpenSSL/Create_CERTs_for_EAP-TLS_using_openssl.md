@@ -207,7 +207,7 @@ echo "No Server key found. Generating one."
 openssl req -nodes -new -newkey ${keytype} -keyout server_key.pem -out server_csr.pem -config openssl.cnf -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi Radius Server/"  && \
 openssl ca -days 36500 -in server_csr.pem -out server_cert.pem -config openssl.cnf -extensions server_cert -batch  && \
 rm -rf server_csr.pem
-echo "You may now run ./create_crl.sh"
+echo "You may now run ./create-crl.sh"
 echo ""
 ```
 
@@ -294,7 +294,7 @@ echo "You NEED update \"ca_cert_crl.pem\" file and restart service \"hostapd\"."
 echo ""
 ```
 
-`chmod  +x  clear_all_cert.sh  new-ca.sh  new-server.sh  create_crl.sh  copy-pem-to.sh  new-user.sh  revoke-user.sh`
+`chmod  +x  clear_all_cert.sh  new-ca.sh  new-server.sh  create-crl.sh  copy-pem-to.sh  new-user.sh  revoke-user.sh`
 
 openssl.cnf
 ```
@@ -414,7 +414,7 @@ windows连接EAP-TLS: 点击搜索到的wifi ssid，出现输入"用户","密码
 ---------
 ```
 
-`chmod  +x  clear_all_cert.sh  new-ca.sh  new-server.sh  create_crl.sh  copy-pem-to.sh  new-user.sh  revoke-user.sh`
+`chmod  +x  clear_all_cert.sh  new-ca.sh  new-server.sh  create-crl.sh  copy-pem-to.sh  new-user.sh  revoke-user.sh`
 
 给android导入用户证书一定要用p12格式，不能用pem格式。   
 Android不认pem格式中的密钥，只认公钥。导致没密钥不能用于连接WIFI。   
@@ -427,7 +427,7 @@ Android不认pem格式中的密钥，只认公钥。导致没密钥不能用于�
 >  ./clear_all_cert.sh clearall  
 > ./new-ca.sh  ec256  
 > ./new-server.sh  rsa2048    #服务器证书建议用RSA  
-> ./create_crl.sh   
+> ./create-crl.sh   
 > ./copy-pem-to.sh  hostapd_conf_dir/  
 > service restart hostapd  
 > ./new-user.sh  ec256  user1  36500   
