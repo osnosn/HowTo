@@ -216,8 +216,8 @@ new-user.sh
 #!/bin/sh
 # new-user.sh
 # Create the user key and cert. This should be done once per cert.
-if [ $# -ne 3 ]; then
-   echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days\n    days between 2 and 365\n"
+if [ $# -lt 3 ]; then
+   echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days  [pass]\n    days between 2 and 365\n"
    exit 1
 fi
 CERT=$2
@@ -245,7 +245,7 @@ case "$1" in
       openssl ecparam -name secp384r1 -out ec_param
       ;;
    *)
-      echo -e "\nUsage: $0  {rsa2048|rsa4096|ec256|ec384}  userName\n"
+      echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days  [pass]\n    days between 2 and 365\n"
       exit
       ;;
 esac
@@ -253,10 +253,12 @@ esac
 DAYS=${3:-1}  # default 1
 if [ "${DAYS}" -gt 365 -o "${DAYS}" -lt 2 ]; then
    if [ "${DAYS}" -ne 36500 ];then
-      echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days\n    days between 2 and 365\n"
+      echo -e "\nUsage: $0  {rsa1024|rsa2048|rsa4096|ec256|ec384}  userName  days  [pass]\n    days between 2 and 365\n"
       exit 1
    fi
 fi
+
+PASS=${4:-123}  # default 123
 
 exportdir="4export"
 
@@ -265,7 +267,7 @@ openssl req -nodes -new -newkey ${keytype} -keyout user_certs/user_${CERT}_key.p
 openssl ca -days ${DAYS} -in user_certs/user_${CERT}_csr.pem -out user_certs/user_${CERT}_cert.pem -config openssl.cnf -extensions user_cert -batch && \
 rm -rf user_certs/user_${CERT}_csr.pem && \
 echo -e "Export certs...\n \"Export Password\" MUST set for IOS.\n \"Export Password\" MAY empty for Android,windows."  && \
-openssl pkcs12 -export -out ./${exportdir}/${CERT}.p12 -inkey user_certs/user_${CERT}_key.pem -in user_certs/user_${CERT}_cert.pem -certfile ca_cert.pem -caname "Wifi EAP RootCA" -name "${CERT}-wifi-user" -passout pass:123
+openssl pkcs12 -export -out ./${exportdir}/${CERT}.p12 -inkey user_certs/user_${CERT}_key.pem -in user_certs/user_${CERT}_cert.pem -certfile ca_cert.pem -caname "Wifi EAP RootCA" -name "${CERT}-wifi-user" -passout pass:${PASS}
 # 友好名称 "-name" "-caname" windows中不支持utf8中文
 
 echo ""
