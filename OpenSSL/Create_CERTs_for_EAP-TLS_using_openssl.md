@@ -263,7 +263,9 @@ PASS=${4:-123}  # default 123
 exportdir="4export"
 
 export RANDFILE=2db/.random_state
-openssl req -nodes -new -newkey ${keytype} -keyout user_certs/user_${CERT}_key.pem -out user_certs/user_${CERT}_csr.pem -config openssl.cnf -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi ${CERT}/" && \
+## win10连接EAP-TLS时强制使用用户证书的"CN="作为用户名。建议"CN="不要包含空格。
+## freeradius3不允许用户名中包含空格。用hostapd做radius时用户名无此限制。
+openssl req -nodes -new -newkey ${keytype} -keyout user_certs/user_${CERT}_key.pem -out user_certs/user_${CERT}_csr.pem -config openssl.cnf -utf8 -subj "/C=CN/ST=广东/L=gz/O=Home/CN=WiFi-${CERT}/" && \
 openssl ca -days ${DAYS} -in user_certs/user_${CERT}_csr.pem -out user_certs/user_${CERT}_cert.pem -config openssl.cnf -extensions user_cert -batch && \
 rm -rf user_certs/user_${CERT}_csr.pem && \
 echo -e "Export certs...\n \"Export Password\" MUST set for IOS.\n \"Export Password\" MAY empty for Android,windows."  && \
