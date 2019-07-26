@@ -265,6 +265,12 @@ and uncomment "check_crl = yes" in file "/etc/freeradius3/mods-enabled/eap".
 - #check_crl = yes
 + check_crl = yes
 ```
+> I found that Win10 will fail to use EAP-TLS certificate authentication.   
+> The error message of radiusd shows that the User-Name contains spaces and refuses to authenticate.  
+> It was found that Win10 enforced the use of the "CN=" content of the user certificate as the User-Name.  
+> Two solutions:   
+>    - When creating user certificates, do not include spaces in the `CN` value.    
+>    - Or install `freeradius3-mod-attr-filter` to filter out the spaces in the User-Name before validation.
 
 ### eapol_test 
 * reference：[freeradius测试](http://www.voidcn.com/article/p-uflkqryr-er.html)  
