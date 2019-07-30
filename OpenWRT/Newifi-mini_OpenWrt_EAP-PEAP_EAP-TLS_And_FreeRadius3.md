@@ -145,7 +145,7 @@ attr_filter.access_reject
 ```
 modify section: client localhost {...} , "secret = testing123", or add a section.
 client localnet {
-    ipaddr = 192.168.2.0/24
+    ipaddr = 192.168.0.0/16
     secret = testing123  (Radius-Authentication-Secret)
 }
 
