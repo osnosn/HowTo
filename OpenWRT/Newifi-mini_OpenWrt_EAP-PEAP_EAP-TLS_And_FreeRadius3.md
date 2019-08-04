@@ -508,7 +508,8 @@ client 192.168.1.0/24 {
 
 ------------
 References:   
-[openwrt 编译newifi 应用程序](https://www.cnblogs.com/diylab/p/6021432.html),    
-[Newifi-mini OpenWrt 下 EAP-PEAP,EAP-TLS 企业级无线认证及 FreeRadius3](https://www.cnblogs.com/osnosn/p/11186646.html)   
+* [openwrt 编译newifi 应用程序](https://www.cnblogs.com/diylab/p/6021432.html),    
+* [Newifi-mini OpenWrt 下 EAP-PEAP,EAP-TLS 企业级无线认证及 FreeRadius3](https://www.cnblogs.com/osnosn/p/11186646.html)   
+* [在路由器ip6tables中匹配IPv6动态地址(native ipv6)](https://blog.ptsang.net/match-ipv6-dynamic-addresses-in-iptables)   
 
 ----
