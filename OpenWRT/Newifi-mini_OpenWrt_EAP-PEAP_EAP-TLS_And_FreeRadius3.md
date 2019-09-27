@@ -294,6 +294,18 @@ run in CentOS's shell mode ` eapol_test -c test-tls -a <your radius/router IP> -
 you will see "SUCCEED", it means every thing goes OK. 
 
 -----
+### Enable mt7621 nat_hw
+login router's web.   
+Network -> Firewall -> General Settings -> Software flow offloading(select) -> Hardware flow offloading(select) -> Save&Apply(submit)
+> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/mt7621-nat1.png" width="100" /> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/mt7621-nat2.png" width="100" />
+
+-----
+### Enable TCP-BBR
+You can choose whether to enable BBR or not.   
+`opkg install kmod-tcp-bbr`   
+it will enabled after reboot.    
+
+-----
 reference:   
 * freeradius3的web luci配置页面，没搞。[可以参考这里](https://github.com/MuJJus/luci-app-radius)。      
 * 另有一篇讲[openwrt上freeradius2的EAP-TLS配置](https://github.com/ouaibe/howto/blob/master/OpenWRT/802.1xOnOpenWRTUsingFreeRadius.md)，参考价值不高。他把所有radius包都装上了。   
