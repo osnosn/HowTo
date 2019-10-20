@@ -28,8 +28,9 @@ opkg install freeradius3 freeradius3-mod-eap-peap freeradius3-mod-always freerad
 > freeradius3-mod-eap-mschapv2 (peap needed)   
 
 ### modify `/etc/freeradius3/mods-config/files/authorize` 
-Add one or more line, like this：    
-`bob     Cleartext-Password := "hello" `
+Add one or more line, like this：   
+`bob     Cleartext-Password := "hello" `   
+The password lenght>8 is better, because some old android will not connect the wifi. Like android5.
 
 ### modify `/etc/freeradius3/mods-enabled/eap`   
 ```
