@@ -2,6 +2,13 @@
 
 Written in 2019-07-15.
 
+> WiFi at home is generally authenticated with WPA2, and there is only one password. If the password is leaked, all devices at home need to change the password.  
+> In addition, with the popularity of password sharing software, such as "WiFi universal key", WPA2's password is easy to leak.  
+> This article introduces how to build an EAP enterprise authentication WiFi. It supports n accounts (n > = 1), which can be set as one account for one person.  
+> If an account leaks, change the password of the account, or delete the account.  
+> Even one certificate per person can be issued. Log in WiFi with certificate. The certificate has expiration time and can be revoked.  
+> You can't log in to WiFi if your certificate expires or is revoked.
+
 I'm using: OpenWrt-18.06.4   
 firmware file: http://downloads.openwrt.org/releases/18.06.4/targets/ramips/mt7620/openwrt-18.06.4-ramips-mt7620-y1-squashfs-sysupgrade.bin
 
