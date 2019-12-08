@@ -4,7 +4,7 @@ support EAP-PEAP,EAP-TLS.
 ## [CentOS7用hostapd做radius服务器为WiFi提供802.1X企业认证](https://www.cnblogs.com/osnosn/p/10593297.html)
 支持 EAP-PEAP, EAP-TLS。   写于: 2019-03-27.
 
-> 家里的WiFi一般是用WPA2认证，密码只有一个，泄漏了，全家都要换密码。  
+> 家里的WiFi一般是用WPA2认证，密码只有一个，泄漏了，家里所有设备都要换密码。  
 > 再加上现在密码共享软件的流行，如“wifi万能钥匙”，WPA2的密码也不安全了。  
 > 本文介绍如何搭建一个EAP的企业认证WiFi。支持N个账号(N>=1)，可以做到一人一个账号。  
 > 一个账号泄漏，改掉这个账号的密码，或者删除这个账号就行。  
