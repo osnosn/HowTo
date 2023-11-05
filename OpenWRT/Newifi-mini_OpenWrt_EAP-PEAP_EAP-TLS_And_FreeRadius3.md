@@ -51,7 +51,7 @@ comment out lines about: md5 {..}  leap {..} gtc {...} tls {..} ttls{...}
 + check_crl = yes
 ```
 
-### Create CA & server CERTs for test，Or [Create CERTs for EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)
+### Create CA & server CERTs for test，Or [Create CERTs for PEAP/EAP-TLS using openssl](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_PEAP_EAP-TLS_using_openssl.md)
 ```
 ## ssh to router, run in shell mode
 opkg install openssl-util

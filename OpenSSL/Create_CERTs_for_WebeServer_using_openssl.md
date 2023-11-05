@@ -5,7 +5,7 @@ Written in 2019-03-28.
 * 不想用自签名证书，想在网上申请一个免费服务器证书，见这篇: **[去freessl.org申请免费ssl服务器证书](https://www.cnblogs.com/osnosn/p/10627969.html)**   
 
 以下内容是用自签名证书，为网站生成服务器证书。   
-照着这一篇**"[用openssl为EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)"**，建立所有文件。   
+照着这一篇**"[用openssl为PEAP/EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_PEAP_EAP-TLS_using_openssl.md)"**，建立所有文件。   
 脚本可以生成RSA, ECC证书。运行时带参数指定类型。    
 
 其中openssl.cnf 按以下新增几行。用于匹配你的服务器域名，或者是IP。   
@@ -77,10 +77,11 @@ policyIdentifier = "X509v3 Any Policy"
 CPS.1 = https://your.web.com/cps/readme.html
 userNotice.1=@pl_notice
 [ pl_notice ]
-# 颁发者说明,Issuer statment. 不支持utf8中文,因为ia5org。
+# 颁发者说明,Issuer statment. (没找到换行的表示方法)
 explicitText="Read deail at https://your.web.com/xxx.html"
+#explicitText="UTF8:请看这里 https://your.web.com/xxx.html"  #utf8,中文
 ```
-> userNotice.1 的文字说明，只能是英文，中文会乱码。   
+> userNotice.1 的文字说明，中文要加上UTF8，否则只能是英文。  
 > 文字说明，无论此证书是否被系统信任，查看证书时都会出现在"颁发者说明"中(Issuer Statement)。   
 > CPS.1 的链接。系统未信任此证书时，是不显示的。信任后，才会出现在"颁发者说明"中(Issuer Statement)。  
 > CPS.1= 可以是 "http://" 也可以是 "https://"。   

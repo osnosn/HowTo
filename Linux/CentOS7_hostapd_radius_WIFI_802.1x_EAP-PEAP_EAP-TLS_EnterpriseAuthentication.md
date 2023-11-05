@@ -70,7 +70,7 @@ hostapd.radius_clients
 192.168.5.0/24   key1234
 #0.0.0.0/0        key5678
 ```
-EAP-TLS 认证中**用到的证书**，见我写的另一文 **"[用openssl为EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_EAP-TLS_using_openssl.md)"**。   
+EAP-TLS 认证中**用到的证书**，见我写的另一文 **"[用openssl为PEAP/EAP-TLS生成证书（CA证书,服务器证书,用户证书）](https://github.com/osnosn/HowTo/blob/master/OpenSSL/Create_CERTs_for_PEAP_EAP-TLS_using_openssl.md)"**。   
 AP设备的认证设置，客户端的连接设置，请参看页头**大神**的文章。   
 
 --------- end ---------
