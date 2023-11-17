@@ -290,7 +290,7 @@ openssl ca -days ${DAYS} -in user_certs/user_${CERT}_csr.pem -out user_certs/use
 rm -rf user_certs/user_${CERT}_csr.pem && \
 echo -e "Export certs...\n \"Export Password\" MUST set for IOS.\n \"Export Password\" MAY empty for Android,windows."  && \
 openssl pkcs12 -export -out ./${exportdir}/${CERT}.p12 -inkey user_certs/user_${CERT}_key.pem -in user_certs/user_${CERT}_cert.pem -certfile ca_cert.pem -caname "Wifi EAP RootCA" -name "${CERT}-wifi-user" -passout pass:${PASS}
-# 友好名称 "-name" "-caname" windows中不支持utf8中文
+# 友好名称 "-name" "-caname" windows不支持utf8中文的友好名称
 
 echo ""
 ```
@@ -321,7 +321,7 @@ echo ""
 `chmod  +x  clear_all_cert.sh  new-ca.sh  new-server.sh  create-crl.sh  copy-pem-to.sh  new-user.sh  revoke-user.sh`
 
 openssl.cnf   
-此文件2023-10更新   
+此文件2023-10更新. 对应 v0.5.7z 压缩包。   
 ```
 #openssl.cnf
 [ ca ]
@@ -431,7 +431,7 @@ Revoke user:
   After revoke, replace file "ca_cert+crl.pem" and reload "hostapd".   
   
 --------------
-server cert: ECC会导致Android-8连接失败, 错误为"no shared cipher"。如有旧设备建议用RSA。Android12用 ECC没问题。   
+server cert: ECC会导致Android-8连接失败, 错误为"no shared cipher"。  
   如有旧设备，建议server cert用RSA证书。Android12用 ECC server证书没问题。  
   ca, user cert 可以用ECC。  
 user cert in "user_certs/" and "4export/"   
@@ -473,10 +473,13 @@ Android不认pem格式中的密钥，只认公钥。导致没密钥不能用于�
 
 
 ## 其他证书测试
-* 用 freessl.cn申请的TrustAsia 一年期免费ECC证书，三月期ECC证书，三月期RSA证书，  
+* 用 freessl.cn申请的TrustAsia 一年期免费ECC证书，3月期ECC证书，3月期RSA证书，  
+  用 buyPass.com 的6月期RSA证书，  
   用于hostapd做<span style="background:#cfc">**PEAP认证都是OK**</span>的。   
-  但,无法做EAP-TLS认证，因为不拥有CA证书，无法签发用户证书。   
-  Android12 手机客户端，选择:   
+  但,无法做EAP-TLS认证，因为不拥有CA证书 (无ca.key)，无法签发用户证书。   
+  国内的 Android12 手机客户端，测试ok，  
+  另一台 Android12 (T-Mobile REVVL V+ 5G, WTRVL5G)，测试ok，  
+  选择:  
   - EAP方法: PEAP;   
   - 阶段2身份验证: MSCHAPV2;   
   - CA证书: 使用系统证书;   
@@ -485,43 +488,64 @@ Android不认pem格式中的密钥，只认公钥。导致没密钥不能用于�
   - 输入正确的用户/密码。   
   - 匿名身份:建议填用户名, 或留空,或随便填。   
   
-  能<span style="background:#cfc">**成功登录WiFi**</span>。安卓手机<span style="background:#cfc">**无需另外导入CA证书**</span>。   
+  <span style="background:#cfc">**成功登录WiFi**</span>。安卓手机<span style="background:#cfc">**无需另外导入CA证书**</span>。   
   如果域名输入错误，hostapd报`internal error`，不能登录WiFi。   
   可以考虑使用 acme.sh 脚本，自动更新证书。   
   (2023-10测ok)   
 * 申请LetsEncrypt的3个月期RSA证书，3个月期ECC证书。   
   用于hostapd做PEAP认证，hostapd都报`certificate expired`。Android手机<span style="background:#fcc">无法登录WiFi</span>。   
-  可能是运行hostapd的系统太旧了，系统内置的ca是2018年04月的，太旧。   
-  印象中LetsEncrypt在2021年有"过期"的问题。下次换个系统测试一下。(2023-10测)   
+  可能是运行hostapd的系统太旧了，系统内置的ca是2018-04月的，太旧。   
+  印象中LetsEncrypt在2021年有"过期"的问题。   
+  换个系统op22.03，系统内置ca是2021-10月的，测试报`certificate expired`，失败。  
+  升级op22的ca，更新到2023-03月，测试还是报`certificate expired`。  
+  也许与手机的内置CA有关。  
+  可是把这个证书部署在https网站上，用相同的手机访问，浏览器没有证书警告。  
+  看来 LetsEncrypt的证书，不能用于peap认证。(2023-10测)  
   - 见【[LetsEncrypt证书信任链](https://letsencrypt.org/zh-cn/certificates/)】,【[给Let's Encrypt证书过期的移动设备安装证书](https://www.bilibili.com/read/cv13897062/)】   
 * 有的手机升级到 安卓11或以上，   
+  比如 Android12 (T-Mobile REVVL V+ 5G, WTRVL5G)，  
   登录wifi时，`CA证书/CA certificate`取消了 "不验证" 的选项。只能选择:   
-  - 使用系统证书/Use system certificates (网上申请的服务器证书,用这个选项)   
-  - 安装证书/Install certificates (导入自签名CA证书,用这个选项)   
+  - `使用系统证书/Use system certificates` (网上申请的服务器证书,用这个选项)   
+  - `安装证书/Install certificates` (导入自签名CA证书,用这个选项)   
 
   只有`在线证书状态/Online Certificate Status`(即:OCSP验证) 有"不验证"的选项。   
   并且必须要填写`域名/Domain`。   
   所以，制作自签名证书，需要加上 `subjectAltName =` 项目。   
   制作的服务器证书，subjectAltName中如有多个DNS名称(可以是FQDN,可以是仅主机名)。   
-  安卓手机登录时，域名输入任意一个即可。(比如，有 `DNS.2=wifi`，域名输入wifi即可)   
+  安卓手机登录时，域名输入任意一个 (DNS内容) 即可。(比如，有 `DNS.2=wifi`，域名输入wifi即可)   
   能<span style="background:#cfc">**成功登录WiFi**</span>。   
+  如果域名输入错误，hostapd报`internal error`，不能登录WiFi。  
   手机登录wifi前，<span style="background:#cfc">**必须要导入CA自签名证书**</span>。否则,hostapd报 `unknow CA`，不能登录WiFi。   
-  如果域名输入错误，hostapd报`internal error`，不能登录WiFi。   
-  测试PEAP登录OK。   
-  EAP-TLS方式 <span style="background:#ccf">没有测试</span>，应该也没问题。   
-  (2023-10测ok)   
+  &emsp;安卓手机导入证书的路径，  
+  * 设置->安全->更多安全->加密与凭据->安装证书，选择安装"CA"或"(WLAN)证书"  
+  * Settings->Security&Location->Advanced->Encryption&credentials->Install a certificate, 选择"CA"或"WiFi"。  
+
+  测试PEAP<span style="background:#cfc">**登录OK**</span>。以下是证书导入要求，(2023-10测ok)  
+  * 把 ca.pem 导入到 `信任的凭据(信任的CA证书)/Trusted credentials`-> `用户证书/user` 中。否则, 报 `unknown ca`。  
+  * 把 ca.pem 导入到 `用户凭据/User credentials` 中，用途为 WIFI/WLAN。否则, 连接WiFi时无法选择ca。  
+
+  测试EAP-TLS方式 <span style="background:#cfc">**登录OK**</span>。以下是证书导入要求，(2023-10测ok)  
+  * 把 ca.pem 导入到 `信任的凭据(信任的CA证书)/Trusted credentials`-> `用户证书/user` 中。否则, 报 `unknown ca`。  
+  * 把包含(ca证书,用户证书,用户key)的 p12 导入到 `用户凭据/User credentials` 中，用途为 WIFI/WLAN。否则, 连接WiFi时无法选择ca，无法选择用户证书。  
 * 下载到安卓手机的自签名CA证书，文件名中要包含cert字样(如xxx-cert.pem)。   
   否则,有的安卓(某牌子Android-12)不认，无法安装。   
   导入CA时选择用于wifi。或者在登录WiFi时，在"CA证书"项,选择"安装证书"。   
   <span style="background:#cfc">**ECC和RSA**</span> 的CA证书，安卓都能识别，支持导入。(2023-10测ok)   
+  有的手机，没有上述限制。只要是后缀为 .crt 或 .p12 就能被识别为证书。  
+  (2023-10测ok)  
 * 对于以前的部署，如果server证书没有DNS。无需重做全套证书。   
 可以<span style="background:#cfc">**保留**</span>原来的CA和用户证书。用原CA,重做server证书，加上DNS项就行。(2023-10测ok)   
   - 修改 openssl.cnf 中 DNS项。   
   - 删除/改名,原server证书的文件名。   
   - 修改 new-server.sh 中 `CN=`的内容，与原来的稍有不同就行。   
   - 执行 `./new-server.sh ` 生成新的server证书。   
+
+  更换server证书后，所有原来能成功连接的设备，  
+  * 安卓，之前选择 CA不验证的，不受影响。能自动连上，无需人工干预。  
+  * iPad(ios16)，iphone(ios14)，已经连接上的，用一段时间，或者重新首次连接WiFi，会弹证书框，需要点击一次"信任"，才能连上。  
+  * win10，重新首次连接WiFi，需要重新确认一次。  
 * 对于iPad (ios16)，登录PEAP，只能选择"自动"，没有地方填写"域名"。   
-  并且无论是自签CA (服务证书有/没有DNS项)，还是freessl/letsencrypt申请的证书，   
+  并且无论是自签CA (服务器证书,有/没有DNS项)，还是freessl 申请的证书，   
   都会弹出"不信任证书"的对话框，让你确认。   
   确认后，都能<span style="background:#cfc">**成功连接**</span>。(2023-10测)   
 * 参考【[FreeRadius EAP-TLS configuration](https://wiki.alpinelinux.org/wiki/FreeRadius_EAP-TLS_configuration)】,   
