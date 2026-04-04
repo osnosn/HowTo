@@ -101,7 +101,7 @@
 	  其他: 留空或不修改
 	```
 
-<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/tproxy_routing1.png" style="width:200px;border:1px solid #000" /> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/tproxy_routing2.png" style="width:200px;border:1px solid #000" /> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/tproxy_routing3.png" style="width:200px;border:1px solid #000" border=1 />
+<img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/tproxy_routing1.png" style="width:200px;border:1px solid #000" /> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/tproxy_routing2.png" style="width:200px;border:1px solid #000" /> <img src="https://github.com/osnosn/HowTo/raw/master/OpenWRT/images/tproxy_routing3.png" style="width:200px;border:1px solid #000" />
 
 
 ## 防火墙规则
