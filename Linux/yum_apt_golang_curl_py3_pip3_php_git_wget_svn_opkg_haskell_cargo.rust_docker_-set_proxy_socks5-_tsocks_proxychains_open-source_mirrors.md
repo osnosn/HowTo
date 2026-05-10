@@ -1,5 +1,5 @@
 # [yum_apt_golang_curl_py3_pip3_php_git_wget_svn_opkg_haskell_cargo.rust_docker_设置_proxy_socks5_tsocks_proxychains_国内开源镜像mirrors](https://github.com/osnosn/HowTo/blob/master/Linux/yum_apt_golang_curl_py3_pip3_php_git_wget_svn_opkg_haskell_cargo.rust_docker_-set_proxy_socks5-_tsocks_proxychains_open-source_mirrors.md)
-**转载注明来源: [本文链接](https://github.com/osnosn/HowTo/blob/master/OpenWRT/yum_apt_golang_curl_py3_pip3_php_git_wget_svn_opkg_haskell_cargo.rust_docker_-set_proxy_socks5-_tsocks_proxychains_open-source_mirrors.md)**，写于 2020-03-11.
+**转载注明来源: [本文链接](https://github.com/osnosn/HowTo/blob/master/Linux/yum_apt_golang_curl_py3_pip3_php_git_wget_svn_opkg_haskell_cargo.rust_docker_-set_proxy_socks5-_tsocks_proxychains_open-source_mirrors.md)**，写于 2020-03-11.
 
 # 各种客户端应用的代理设置，支持的代理类型
 
@@ -22,35 +22,35 @@
     ```
 
 ## apt
-* 在 `/etc/apt/apt.conf` 文件中加入一行: 
+* 在 `/etc/apt/apt.conf` 文件中加入一行:   
   或者创建文件 `/etc/apt/apt.conf.d/99proxy.conf`
-* 支持http代理: `Acquire::http::Proxy "http://usr:pwd@192.168.2.2:80";`
-  支持https代理: `Acquire::http::Proxy "https://usr:pwd@192.168.2.2:80";`
-  帮助文档`man apt-transport-https`
+* 支持http代理: `Acquire::http::Proxy "http://usr:pwd@192.168.2.2:80";`  
+  支持https代理: `Acquire::http::Proxy "https://usr:pwd@192.168.2.2:80";`  
+  帮助文档`man apt-transport-https`  
 * 支持socks5h代理(remote DNS解析): `Acquire::http::Proxy "socks5h://usr:pwd@192.168.2.2:1080";` 
-  * 如果s5是通过 `ssh -R` 提供的，想要允许子网使用，服务端的 `sshd_config` 要设置 `GatewayPorts yes`。
-    服务端是 op-21.02 的话，`/etc/config/dropbear` 要加上 `option GatewayPorts 'on'`，并且要用 `ssh -R '*:1080'`连。
-    如果ssh是通过tsocks-1.8连接。tsocks.conf 的缺省部分,不要设置 `server =`，要设置 `fallback = yes`。
-    建议通过ncat或netcat连接，不通过tsocks或proxychains。
+  * 如果s5是通过 `ssh -R` 提供的，想要允许子网使用，服务端的 `sshd_config` 要设置 `GatewayPorts yes`。  
+    服务端是 op-21.02 的话，`/etc/config/dropbear` 要加上 `option GatewayPorts 'on'`，并且要用 `ssh -R '*:1080'`连。  
+    如果ssh是通过tsocks-1.8连接。tsocks.conf 的缺省部分,不要设置 `server =`，要设置 `fallback = yes`。  
+    建议通过ncat或netcat连接，不通过tsocks或proxychains。  
 
 ## golang
-* `go get` 指令支持 环境变量 http_proxy 和 https_proxy，指定普通代理。其中`go get`又使用 git 获取源码。
-   所以, 配置 git 的代理 + `export https_proxy=socks5://127.0.0.1:1080`。
-   比如直接执行`https_proxy=socks5://127.0.0.1:1080 go mod download github.com/mattn/go-sqlite3`(无GOPROXY设置)
-* 或者只用 GOPROXY=https://goproxy.io,direct 环境变量。见 【[goproxy.io](https://goproxy.io)】首页的介绍。
-  或者 GOPROXY=https://goproxy.cn,direct 环境变量。见 【[goproxy.cn](https://goproxy.cn)】首页的介绍。
-  还有几个可用, (https://)gonexus.dev/ , https://mirrors.aliyun.com/goproxy/ , (https://)athens.azurefd.net , (https://)gocenter.io ,, https://repo.huaweicloud.com/repository/goproxy/ ,  
-  这个用不了, https://proxy.golang.org , 
+* `go get` 指令支持 环境变量 http_proxy 和 https_proxy，指定普通代理。其中`go get`又使用 git 获取源码。  
+   所以, 配置 git 的代理 + `export https_proxy=socks5://127.0.0.1:1080`。  
+   比如直接执行`https_proxy=socks5://127.0.0.1:1080 go mod download github.com/mattn/go-sqlite3`(无GOPROXY设置)  
+* 或者只用 GOPROXY=https://goproxy.io,direct 环境变量。见 【[goproxy.io](https://goproxy.io)】首页的介绍。  
+  或者 GOPROXY=https://goproxy.cn,direct 环境变量。见 【[goproxy.cn](https://goproxy.cn)】首页的介绍。  
+  还有几个可用, (https://)gonexus.dev/ , https://mirrors.aliyun.com/goproxy/ , (https://)athens.azurefd.net , (https://)gocenter.io ,, https://repo.huaweicloud.com/repository/goproxy/ ,    
+  这个用不了, https://proxy.golang.org ,   
   * GOPROXY= 只接受 https 。如要用 http，则要设置 GO111MODULE=on 。
   * goproxy.io 不是用常规的代理协议。go 访问 github.com , 会以 https://goproxy.io/github.com/xxx 的形式访问。
-  * Go 1.13 及以上（推荐）
-    `go env -w GO111MODULE=on`
-    `go env -w GOPROXY=https://goproxy.cn,direct`
-    其实写在 "~/.config/go/env" 文件中。
-  * Go 1.12 及以下
-    `export GO111MODULE=on`
-    `export GOPROXY=https://goproxy.cn,direct`
-* "net/http" 包, 缺省支持 http 和 socks5 代理.
+  * Go 1.13 及以上（推荐）  
+    `go env -w GO111MODULE=on`  
+    `go env -w GOPROXY=https://goproxy.cn,direct`  
+    其实写在 "~/.config/go/env" 文件中。  
+  * Go 1.12 及以下  
+    `export GO111MODULE=on`  
+    `export GOPROXY=https://goproxy.cn,direct`  
+* "net/http" 包, 缺省支持 http 和 socks5 代理.  
   ```
   proxystr="http://192.168.2.2:80"      //http proxy
   proxystr="socks5://192.168.2.2:1080"  // socks5 proxy(remote DNS解析)
@@ -94,7 +94,7 @@
   #proxypassword=pwd
   #useproxy = on
   ```
-* wget 无论是环境变量，还是 .wgetrc 只支持 http 代理，不支持 https socks5 
+* wget 无论是环境变量，还是 .wgetrc 只支持 http 代理，不支持 https socks5   
   如果非要使用 socks5 ，那就套上 tsocks 。
 
 
@@ -137,7 +137,7 @@
   con=opener.open(req)
   print(con.read())
   ```
-* py3 的 urllib.request 不直接支持 socks5 代理。
+* py3 的 urllib.request 不直接支持 socks5 代理。  
   需要 PySocks 包支持。`pip3 install PySocks` 或 `apt install python3-socks` 或 `yum install python36-pysocks` 或 `dnf install python3-pysocks`
   ```python
   import urllib,urllib.parse,urllib.request
@@ -151,7 +151,7 @@
   req=urllib.request.Request('http://baidu.com')
   con=opener.open(req)
   ```
-* PySocks 为 py3 程序,设置全局默认代理
+* PySocks 为 py3 程序,设置全局默认代理  
   ```python
   import socks, socket
   socks.set_default_proxy(proxy_type=socks.SOCKS5, addr='192.168.1.2', port=1080, rdns=True, username='usr', password='pwd')
@@ -159,7 +159,7 @@
   socket.socket=socks.socksocket
   # proxy_type= 支持三种代理类型 socks.SOCKS4  socks.SOCKS5  socks.HTTP
   ```
-* py3 的 requests-2.24 包支持http和socks5代理, (需要装PySocks)
+* py3 的 requests-2.24 包支持http和socks5代理, (需要装PySocks)  
   ```python
   import requests
   ## verify=False 访问https时不检查证书
@@ -204,53 +204,53 @@
 ## graftcp
 * 【https://github.com/hmgle/graftcp】
 * 【[proxychains和graftcp的比较](https://blog.ykai.cc/proxychainshe-graftcpde-bi-jiao/)】
-* proxychains使用了LD_PRELOAD环境变量。替换系统的动态库glibc，达到使用socks5目的。对使用动态库的程序有效。
-  graftcp的思路则是通过ptrace调用来截获子进程的connect连接。对静态编译的程序也有效，比如golang程序。
-  graftcp是用c 和 golang写的。github项目的releases中也没有编译好的程序下载。debian中没有预编译包安装。只能自己编译。
+* proxychains使用了LD_PRELOAD环境变量。替换系统的动态库glibc，达到使用socks5目的。对使用动态库的程序有效。  
+  graftcp的思路则是通过ptrace调用来截获子进程的connect连接。对静态编译的程序也有效，比如golang程序。  
+  graftcp是用c 和 golang写的。github项目的releases中也没有编译好的程序下载。debian中没有预编译包安装。只能自己编译。  
 
 ## toh
-* 【https://github.com/rkonfj/toh】
+* 【https://github.com/rkonfj/toh】  
   TCP/UDP over HTTP/WebSocket
 
 ## git
 * 【[GIt设置代理](https://www.jianshu.com/p/b481d2a42274)】,【[git如何设置使用代理](https://www.jianshu.com/p/290152303598)】
   【[Configure Git to use a proxy](https://gist.github.com/evantoli/f8c23a37eb3558ab8765)】
 * 不能用 tsocks 来套，会出错。
-* 设置
-  git config --global https.proxy http://user:psw@127.0.0.1:1080
-  git config --global https.proxy https://user:psw@127.0.0.1:1080
-  git config --global http.proxy 'socks5://user:psw@127.0.0.1:1080'
-  git config --global https.proxy 'socks5://user:psw@127.0.0.1:1080'
-  密码中有特殊字符的要用 % 编码，比如 @ --> %40
-* 取消
-  git config --global --unset http.proxy
-  git config --global --unset https.proxy
-* git "--global" 的配置在 `~/.gitconfig`, "--local" 的配置在当前项目的 `.git/config`
+* 设置  
+  git config --global https.proxy http://user:psw@127.0.0.1:1080  
+  git config --global https.proxy https://user:psw@127.0.0.1:1080  
+  git config --global http.proxy 'socks5://user:psw@127.0.0.1:1080'  
+  git config --global https.proxy 'socks5://user:psw@127.0.0.1:1080'  
+  密码中有特殊字符的要用 % 编码，比如 @ --> %40  
+* 取消  
+  git config --global --unset http.proxy  
+  git config --global --unset https.proxy  
+* git "--global" 的配置在 `~/.gitconfig`, "--local" 的配置在当前项目的 `.git/config`  
 * 有一个公共代理站，见【[ghproxy.com](https://ghproxy.com/)】
 * 【[为 git 和 ssh 设置 socks5 协议的代理](https://blog.systemctl.top/2017/2017-09-28_set-proxy-for-git-and-ssh-with-socks5/)】
   【[如何为 Git 设置代理](https://segmentfault.com/q/1010000000118837)】
-  * `ssh://`, 使用 ProxyCommand
-    在 `.ssh/config` 中配置连接 github的 ssh账号，
-    使用`ProxyCommand /bin/nc -x 192.168.x.xx:1080 %h %p`。
-    或，使用`ProxyCommand /usr/bin/ncat --proxy-type socks5 -x 192.168.x.xx:1080 --proxy-auth usr:pwd %h %p`。
-  * `git://`, 在 `man git-config` 有提到。
-    使用 `git config --global core.gitProxy '/opt/mypxy.sh'`
-    或者 `export GIT_PROXY_COMMAND=/opt/mypxy.sh`
+  * `ssh://`, 使用 ProxyCommand  
+    在 `.ssh/config` 中配置连接 github的 ssh账号，  
+    使用`ProxyCommand /bin/nc -x 192.168.x.xx:1080 %h %p`。  
+    或，使用`ProxyCommand /usr/bin/ncat --proxy-type socks5 -x 192.168.x.xx:1080 --proxy-auth usr:pwd %h %p`。  
+  * `git://`, 在 `man git-config` 有提到。  
+    使用 `git config --global core.gitProxy '/opt/mypxy.sh'`  
+    或者 `export GIT_PROXY_COMMAND=/opt/mypxy.sh`  
     ```
     # mypxy.sh
     ncat --proxy ... "$@"
     ```
 
 ## svn
-* svn 配置代理，支持 http 代理，不支持 socks5
-  修改 `~/.subversion/servers` 中 `[global]` 的
-  `http-proxy-host`
-  `http-proxy-port`
-  `http-proxy-username`
-  `http-proxy-password`
+* svn 配置代理，支持 http 代理，不支持 socks5  
+  修改 `~/.subversion/servers` 中 `[global]` 的  
+  `http-proxy-host`  
+  `http-proxy-port`  
+  `http-proxy-username`  
+  `http-proxy-password`  
 
 ## haskell stack
-* 使用环境变量
+* 使用环境变量  
   ```
   export http_proxy=http://user:pwd@192.168.1.1:80
   export https_proxy=http://user:pwd@192.168.1.1:80
@@ -281,8 +281,8 @@
   default = "crates-io"
   ```
 * 【[Rust Crates 源使用帮助](http://mirrors.ustc.edu.cn/help/crates.io-index.html)】
-* **cargo** 支持环境变量, 
-  **rustup** 也使用环境变量, 
+* **cargo** 支持环境变量,   
+  **rustup** 也使用环境变量,   
   ```
   http_proxy="http://user:pass@127.0.0.1:1080"
   https_proxy="http://user:pass@127.0.0.1:1080"
@@ -317,37 +317,37 @@
   optinon proxy_user abc
   optinon proxy_passwd def
   ```
-* op-19,op-21,op-22, 默认安装的wget(其实是uclient-fetch)，**仅支持通过无认证的代理访问http**，不支持通过代理访问https，不支持代理的认证。(可以建本地的无认证代理,再转发)
-  除非**安装完整版wget**，op-19用`opkg install wget`，op-21,op-22用`opkg install wget-ssl`。
-  * op21,op22中`/etc/opkg.conf`并不支持`https_proxy`的配置项。https访问只能在 `~/.wgetrc`配置，支持代理的认证。
-    http访问,配置 `/etc/opkg.conf` 或者 `~/.wgetrc` (二选一)，支持代理认证。
-  * 应该也支持,环境变量 `http_proxy=` 和 `https_proxy=`，(未测试)。
-  * 2025年安装op24，镜像站都是https，很少有http的。
-    只能根据 `opkg print-architecture`或`cat /etc/openwrt_release`确定ARCH, 去下载 ipk包。
-    先**手动下载 wget-ssl的 ipk文件**(在/packages)，以及它的两个依赖包 ipk(在/base)，上传并安装 wget-ssl。
-    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。`https_proxy=http://usr:pwd@192.168.22.2:8080`
-    如果还是报错`wget returned 5`, 可能是op对网站的证书验证失败，<span style="background:#fcf">检查本地时间是否正确</span>，或.wgetrc中加入`check-certificate=off`
-    另: /etc/opkg.conf 中 `optinon no_check_certificate 1` 设置无效。
-* 换源,清华大学:`sed -i s_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_ /etc/opkg/distfeeds.conf`
-  换浙大源，`sed -i s_vsean.net/openwrt_zju.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`
-  换科大源，`sed -i s_vsean.net/openwrt_ustc.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`
-  换上交大源，`sed -i s_vsean.net/openwrt_sjtug.sjtu.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`
-  换北大源，`sed -i s_vsean.net/openwrt_pku.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`
+* op-19,op-21,op-22, 默认安装的wget(其实是uclient-fetch)，**仅支持通过无认证的代理访问http**，不支持通过代理访问https，不支持代理的认证。(可以建本地的无认证代理,再转发)  
+  除非**安装完整版wget**，op-19用`opkg install wget`，op-21,op-22用`opkg install wget-ssl`。  
+  * op21,op22中`/etc/opkg.conf`并不支持`https_proxy`的配置项。https访问只能在 `~/.wgetrc`配置，支持代理的认证。  
+    http访问,配置 `/etc/opkg.conf` 或者 `~/.wgetrc` (二选一)，支持代理认证。  
+  * 应该也支持,环境变量 `http_proxy=` 和 `https_proxy=`，(未测试)。  
+  * 2025年安装op24，镜像站都是https，很少有http的。  
+    只能根据 `opkg print-architecture`或`cat /etc/openwrt_release`确定ARCH, 去下载 ipk包。  
+    先**手动下载 wget-ssl的 ipk文件**(在/packages)，以及它的两个依赖包 ipk(在/base)，上传并安装 wget-ssl。  
+    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。`https_proxy=http://usr:pwd@192.168.22.2:8080`  
+    如果还是报错`wget returned 5`, 可能是op对网站的证书验证失败，<span style="background:#fcf">检查本地时间是否正确</span>，或.wgetrc中加入`check-certificate=off`  
+    另: /etc/opkg.conf 中 `optinon no_check_certificate 1` 设置无效。  
+* 换源,清华大学:`sed -i s_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_ /etc/opkg/distfeeds.conf`  
+  换浙大源，`sed -i s_vsean.net/openwrt_zju.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
+  换科大源，`sed -i s_vsean.net/openwrt_ustc.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
+  换上交大源，`sed -i s_vsean.net/openwrt_sjtug.sjtu.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
+  换北大源，`sed -i s_vsean.net/openwrt_pku.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
 
 ## docker pull 设置通过 http 代理
-* 【[docker pull通过http代理服务拉取镜像&docker配置通过私库拉取镜像](https://blog.csdn.net/jxlhljh/article/details/120176970)】，
-  【[如何配置docker通过代理服务器拉取镜像](https://www.cnblogs.com/abc1069/p/17496240.html)】，
-  【[Docker 在内网服务器通过配置代理访问外网拉取镜像](https://blog.csdn.net/chrisy521/article/details/128644578)】
-* (方式1)设置 `/etc/systemd/system/docker.service.d/http-proxy.conf` (docker.service.d/ 目录需要手工创建)。
-  支持 http,socks5, 内容为，
+* 【[docker pull通过http代理服务拉取镜像&docker配置通过私库拉取镜像](https://blog.csdn.net/jxlhljh/article/details/120176970)】，  
+  【[如何配置docker通过代理服务器拉取镜像](https://www.cnblogs.com/abc1069/p/17496240.html)】，  
+  【[Docker 在内网服务器通过配置代理访问外网拉取镜像](https://blog.csdn.net/chrisy521/article/details/128644578)】  
+* (方式1)设置 `/etc/systemd/system/docker.service.d/http-proxy.conf` (docker.service.d/ 目录需要手工创建)。  
+  支持 http,socks5, 内容为，  
   ```
   [Service]
   Environment="HTTP_PROXY=http://proxy.example.com:80"
   Environment="HTTPS_PROXY=https://proxy.example.com:443"
   #Environment="HTTPS_PROXY=socks5://user:pwd@proxy.example.com:1080"
   ```
-  `systemctl daemon-reload; systemctl restart docker` 重启docker服务。
-  `systemctl show --property=Environment docker` 检查确认环境变量已经生效。
+  `systemctl daemon-reload; systemctl restart docker` 重启docker服务。  
+  `systemctl show --property=Environment docker` 检查确认环境变量已经生效。  
 * (方式2)设置 `/etc/docker/daemon.json`
   ```
   {
@@ -357,38 +357,38 @@
     }
   }
   ```
-  重启服务`systemctl restart docker` 生效
-  检查: `docker info | grep -i proxy` 有输出。
-* 【[修改Docke上传/下载并发线程数（解决docker: unexpected EOF.）](https://developer.aliyun.com/article/1124330)】,
-  【[docker容器/etc/docker/daemon.json配置文件详解](https://www.cnblogs.com/chuyiwang/p/17577020.html)】,
-  创建/修改 文件 `/etc/docker/daemon.json` 上传/下载都设置为1，内容为:
+  重启服务`systemctl restart docker` 生效  
+  检查: `docker info | grep -i proxy` 有输出。  
+* 【[修改Docke上传/下载并发线程数（解决docker: unexpected EOF.）](https://developer.aliyun.com/article/1124330)】,  
+  【[docker容器/etc/docker/daemon.json配置文件详解](https://www.cnblogs.com/chuyiwang/p/17577020.html)】,  
+  创建/修改 文件 `/etc/docker/daemon.json` 上传/下载都设置为1，内容为:  
   ```
   {
     "max-concurrent-uploads": 1,
     "max-concurrent-downloads": 1
   }
   ```
-  `systemctl daemon-reload; systemctl restart docker` 重启docker服务，生效。
-* 配置 docker 容器，走 proxy。
-  配置 `~/.docker/config.json`，具体方法上网搜索。
-  【[Use the Docker command line](https://docs.docker.com/engine/reference/commandline/cli/#change-the-docker-directory)】,【[Configure Docker to use a proxy server](https://docs.docker.com/network/proxy/)】,
-*   `docker image ls -a` 列出所有的image，按需删除。
-  【[清理Docker占用的磁盘空间](https://zhuanlan.zhihu.com/p/386025157)】, 
-  `docker image prune`,`docker builder prune`,`docker system prune` (会删除没有被 container 引用的image)。
+  `systemctl daemon-reload; systemctl restart docker` 重启docker服务，生效。  
+* 配置 docker 容器，走 proxy。  
+  配置 `~/.docker/config.json`，具体方法上网搜索。  
+  【[Use the Docker command line](https://docs.docker.com/engine/reference/commandline/cli/#change-the-docker-directory)】,【[Configure Docker to use a proxy server](https://docs.docker.com/network/proxy/)】,  
+*   `docker image ls -a` 列出所有的image，按需删除。  
+  【[清理Docker占用的磁盘空间](https://zhuanlan.zhihu.com/p/386025157)】,   
+  `docker image prune`,`docker builder prune`,`docker system prune` (会删除没有被 container 引用的image)。  
 
 ## acme.sh
 * 因为acme.sh使用"curl"，可以创建 "~/.curlrc" 配置代理。
 * 或指定 "--use-wget" 参数，用 "~/.wgetrc" 配置代理。
 * 也支持 `proxychains4 -q acme.sh --renew -d xxx.xxx.com`
-* acme.sh 默认使用 curl，curl支持环境变量 "HTTP_PROXY=", "HTTPS_PROXY="，大小写都支持。
-  比如`https_proxy=socks5h://usr:pwd@127.0.0.1:1080  ./acme.sh --upgrade`
-  这些ENV变量，写在 account.conf 或 acme.sh.env 中并不生效。
+* acme.sh 默认使用 curl，curl支持环境变量 "HTTP_PROXY=", "HTTPS_PROXY="，大小写都支持。  
+  比如`https_proxy=socks5h://usr:pwd@127.0.0.1:1080  ./acme.sh --upgrade`  
+  这些ENV变量，写在 account.conf 或 acme.sh.env 中并不生效。  
 
 
 
 ## ios 设置自动代理
 * 【[ios 设置自动代理](http://foolishflyfox.xyz/blog/2020/04/11/vpn/ios-auto-agent/)】
-* 就是使用 .pac 文件，URL 就是指向这个.pac文件的连接。
+* 就是使用 .pac 文件，URL 就是指向这个.pac文件的连接。  
   ```
   function FindProxyForURL(url, host){
     return "SOCKS 192.168.1.120:1090";
@@ -405,5 +405,5 @@
 
 
 -----
-**转载注明来源: 本文链接 https://github.com/osnosn/HowTo/blob/master/OpenWRT/yum_apt_golang_curl_py3_pip3_php_git_wget_svn_opkg_haskell_cargo.rust_docker_-set_proxy_socks5-_tsocks_proxychains_open-source_mirrors.md**.
+**转载注明来源: 本文链接 https://github.com/osnosn/HowTo/blob/master/Linux/yum_apt_golang_curl_py3_pip3_php_git_wget_svn_opkg_haskell_cargo.rust_docker_-set_proxy_socks5-_tsocks_proxychains_open-source_mirrors.md**.
 

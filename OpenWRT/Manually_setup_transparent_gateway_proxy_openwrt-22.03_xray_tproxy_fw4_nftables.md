@@ -65,8 +65,8 @@
   ```
 
 ## 策略路由
-* 方法1 (可用)，把这两句，写入 /etc/rc.local 中，
-  或通过 web配置页面，System->Startup->Local Startup , 其实就是 /etc/rc.local
+* 方法1 (可用)，把这两句，写入 /etc/rc.local 中，  
+  或通过 web配置页面，System->Startup->Local Startup , 其实就是 /etc/rc.local  
   ```bash
   # 设置策略路由, 仅ipv4,
   # 添加路由表 100，指向local的loopback
@@ -75,8 +75,8 @@
   ip rule add fwmark 0x10 table 100
   ```
 * 方法2 (更好, 推荐)，用luci的 web页面配置
-  * 添加路由表 100，指向 local 的 loopback
-    在web配置页面，Network->Routing->Static IPv4 Routes 添加一条，
+  * 添加路由表 100，指向 local 的 loopback  
+    在web配置页面，Network->Routing->Static IPv4 Routes 添加一条，  
 	```
 	General Settings
 	  Interface: loopback
@@ -87,8 +87,8 @@
 	  Table: 100
 	  其他: 留空或不修改
 	```
-  * 所有标记 0x10 的Packet走路由表100
-    在web配置页面，Network->Routing->IPv4 Rules 添加一条，
+  * 所有标记 0x10 的Packet走路由表100  
+    在web配置页面，Network->Routing->IPv4 Rules 添加一条，  
 	```
 	General Settings
 	  Priority: 30000  #自选，1-32765 都可以，
@@ -105,12 +105,12 @@
 
 
 ## 防火墙规则
-* 需要安装 nft-tproxy 的内核支持，
+* 需要安装 nft-tproxy 的内核支持，  
   `opkg update && opkg install kmod-nft-tproxy`
-* 添加自定义规则，文档参考【[Firewall configuration /etc/config/firewall -> Includes (22.03 and later with fw4)](https://openwrt.org/docs/guide-user/firewall/firewall_configuration#includes_2203_and_later_with_fw4)】
+* 添加自定义规则，文档参考【[Firewall configuration /etc/config/firewall -> Includes (22.03 and later with fw4)](https://openwrt.org/docs/guide-user/firewall/firewall_configuration#includes_2203_and_later_with_fw4)】  
   下面，选取了其中一种方式。
-* 创建文件 `/etc/nftables.d/20-xray-rules.nft` 内容如下, 仅ipv4,
-  文件名只要是 `.nft`结尾就行，文件名随便。
+* 创建文件 `/etc/nftables.d/20-xray-rules.nft` 内容如下, 仅ipv4,  
+  文件名只要是 `.nft`结尾就行，文件名随便。  
   ```
   define RESERVED_IP = {
         10.0.0.0/8,
@@ -159,31 +159,31 @@
 ## 手工设置完成
 * **重启 openwrt，配置不丢失，策略路由和防火墙规则自动生效。**
 * 其他方式，
-  * 策略路由和防火墙规则，也可以通过自定义服务的方式，实现开机启动。
-    自定义一个服务脚本，比如: /etc/init.d/my-tproxy.sh
-    启动顺序要在 network服务之后，比如: START=90
-    把 策略路由和防火墙规则，写在这个服务脚本中。
-    脚本的编写，比较麻烦。也需要更多的知识。
-    参考: 【[Openwrt-sing-box Tproxy代理折腾](https://www.right.com.cn/forum/thread-8387992-1-1.html)】
+  * 策略路由和防火墙规则，也可以通过自定义服务的方式，实现开机启动。  
+    自定义一个服务脚本，比如: /etc/init.d/my-tproxy.sh  
+    启动顺序要在 network服务之后，比如: START=90  
+    把 策略路由和防火墙规则，写在这个服务脚本中。  
+    脚本的编写，比较麻烦。也需要更多的知识。  
+    参考: 【[Openwrt-sing-box Tproxy代理折腾](https://www.right.com.cn/forum/thread-8387992-1-1.html)】  
 
 ## immortalwrt24再次配置
 * 网络环境。(文中op指的是immortalwrt24) (2025-08测)
   * op做旁路由，只有一个网口LAN
   * openConnect拨入，客户端ip与LAN口不同网段。见【[ocserv配置](https://www.cnblogs.com/osnosn/p/16923645.html)】
-* 配置好，**加入**策略路由，但**没加入**防火墙规则时。
-  oc客户端可以通过op上网，仅IP访问，域名不行。
-  **检查了dnsmasq的配置后**("仅本地服务"的选项)，解决dns解析的限制问题，域名访问就OK了。
-* **加入**防火墙规则后，op本身可以通过tproxy上网(代理的log有显示)。但oc客户端不能访问,除{$RESERVED_IP,$LAN_IP}之外的网页。
-  op本身和oc客户端的域名解析有时不行，重启整个op后就没问题了。可能是防火墙规则,修改/reload多次,导致的问题。
-  oc客户端的{$RESERVED_IP,$LAN_IP}网页访问OK，走的直通。
-  oc客户端的其他网页访问 既不走tproxy(代理的log无显示)，也不直通。就是无法访问。
-  imm24默认支持fullCone NAT,尝试关掉这项也不解决。
-  op本机traceroute baidu.com, udp包会进入tproxy, 导致没有显示。
-  oc客户端显示的traceroute baidu.com, 是直通的, 没有进入tproxy，能正常trace到目标IP。
-  从oc客户端发起TCP连接到 baidu.com:80，卡住，不显示连接成功，若干秒后超时断开。
-  最终，发现这句没写对`ip route add local 0.0.0.0/0 dev lo table 100` local 错选为unicast。
-  更正后，测试正常。
-  连接lan口的,与LAN口同网段的其他机器, op本身, oc客户端, 都能通过tproxy上网。
+* 配置好，**加入**策略路由，但**没加入**防火墙规则时。  
+  oc客户端可以通过op上网，仅IP访问，域名不行。  
+  **检查了dnsmasq的配置后**("仅本地服务"的选项)，解决dns解析的限制问题，域名访问就OK了。  
+* **加入**防火墙规则后，op本身可以通过tproxy上网(代理的log有显示)。但oc客户端不能访问,除{$RESERVED_IP,$LAN_IP}之外的网页。  
+  op本身和oc客户端的域名解析有时不行，重启整个op后就没问题了。可能是防火墙规则,修改/reload多次,导致的问题。  
+  oc客户端的{$RESERVED_IP,$LAN_IP}网页访问OK，走的直通。  
+  oc客户端的其他网页访问 既不走tproxy(代理的log无显示)，也不直通。就是无法访问。  
+  imm24默认支持fullCone NAT,尝试关掉这项也不解决。  
+  op本机traceroute baidu.com, udp包会进入tproxy, 导致没有显示。  
+  oc客户端显示的traceroute baidu.com, 是直通的, 没有进入tproxy，能正常trace到目标IP。  
+  从oc客户端发起TCP连接到 baidu.com:80，卡住，不显示连接成功，若干秒后超时断开。  
+  最终，发现这句没写对`ip route add local 0.0.0.0/0 dev lo table 100` local 错选为unicast。  
+  更正后，测试正常。  
+  连接lan口的,与LAN口同网段的其他机器, op本身, oc客户端, 都能通过tproxy上网。  
 
 
 ------
