@@ -328,6 +328,10 @@
     然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。`https_proxy=http://usr:pwd@192.168.22.2:8080`  
     如果还是报错`wget returned 5`, 可能是op对网站的证书验证失败，<span style="background:#fcf">检查本地时间是否正确</span>，或.wgetrc中加入`check-certificate=off`  
     另: /etc/opkg.conf 中 `optinon no_check_certificate 1` 设置无效。  
+* op-25, 默认安装，仅支持环境变量`https_proxy=http://xxx:8080/ apk update`, 不支持代理的认证，访问代理用"GET https://"而不是"CONNECT https"，会有兼容性问题，部分代理不支持这种方式，导致访问失败。(202606测试)  
+  * **手动下载 wget-ssl的 apk文件**(在/packages)，以及它的一个依赖包 apk(在/base)，上传并安装 wget-ssl。  
+    `apk add --allow-untrust libpcre2-10.47-r1.apk wget-ssl-1.25.0-r2.apk`, 防止报错`UNTRUSTED signature`。  
+    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。  
 * 换源,清华大学:`sed -i s_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_ /etc/opkg/distfeeds.conf`  
   换浙大源，`sed -i s_vsean.net/openwrt_zju.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
   换科大源，`sed -i s_vsean.net/openwrt_ustc.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
