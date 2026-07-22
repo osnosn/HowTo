@@ -324,16 +324,16 @@
   * 应该也支持,环境变量 `http_proxy=` 和 `https_proxy=`，(未测试)。  
   * 2025年安装op24，镜像站都是https，很少有http的。  
     只能根据 `opkg print-architecture`或`cat /etc/openwrt_release`确定ARCH, 去下载 ipk包。  
-    先**手动下载 wget-ssl的 ipk文件**(在/packages)，以及它的两个依赖包 ipk(在/base)，上传并安装 wget-ssl。  
-    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。`https_proxy=http://usr:pwd@192.168.22.2:8080`  
+    先**手动下载 wget-ssl的 ipk文件**(在/packages)，以及它的两个依赖包 ipk(在/base)，上传并安装 wget-ssl，约780kB。  
+    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。`https_proxy=http://usr:pwd@192.168.22.2:8080`. 配好代理,luci的软件包管理页面也能用.  
     如果还是报错`wget returned 5`, 可能是op对网站的证书验证失败，<span style="background:#fcf">检查op的本地时间是否正确</span>，或.wgetrc中加入`check-certificate=off`  
     另: /etc/opkg.conf 中 `optinon no_check_certificate 1` 设置无效。  
-  * 或者**手动安装 proxychains-ng**(在/packages), 设置 `/etc/proxychains.conf`.   
+  * 或者**手动安装 proxychains-ng**(在/packages), 设置 `/etc/proxychains.conf`, 约130kB. 只能命令行用.   
 * op-25, 默认安装，仅支持环境变量`https_proxy=http://xxx:8080/ apk update`, 不支持代理的认证，访问代理用"GET https://"而不是"CONNECT https"，会有兼容性问题，部分代理不支持这种方式，导致访问失败。(202606测试)  
   * **手动下载 wget-ssl的 apk文件**(在/packages)，以及它的一个依赖包 apk(在/base)，上传并安装 wget-ssl。  
-    `apk add --allow-untrust libpcre2-10.47-r1.apk wget-ssl-1.25.0-r2.apk`, 防止报错`UNTRUSTED signature`。  
-    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证。  
-  * 或者**手动安装 proxychains-ng**(在/packages), 设置 `/etc/proxychains.conf`.  
+    `apk add --allow-untrust libpcre2-10.47-r1.apk wget-ssl-1.25.0-r2.apk`, 防止报错`UNTRUSTED signature`, 约1040kB。  
+    然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证, luci的软件包管理也能用。  
+  * 或者**手动安装 proxychains-ng**(在/packages), 设置 `/etc/proxychains.conf`, 约130kB, 只能命令行用.  
   * 如果报错`wget returned 5`, 可能是op对网站的证书验证失败，<span style="background:#fcf">检查op的本地时间是否正确</span>.   
 * 换源,清华大学:`sed -i s_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_ /etc/opkg/distfeeds.conf`  
   换浙大源，`sed -i s_vsean.net/openwrt_zju.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
