@@ -215,7 +215,8 @@
 ## git
 * 【[GIt设置代理](https://www.jianshu.com/p/b481d2a42274)】,【[git如何设置使用代理](https://www.jianshu.com/p/290152303598)】
   【[Configure Git to use a proxy](https://gist.github.com/evantoli/f8c23a37eb3558ab8765)】
-* 不能用 tsocks 来套，会出错。
+* 不能用 tsocks 来套，会出错。  
+* 可以使用 proxychains 让 git走socks5, `git clone ...` 拉取 OK.  
 * 设置  
   git config --global https.proxy http://user:psw@127.0.0.1:1080  
   git config --global https.proxy https://user:psw@127.0.0.1:1080  
