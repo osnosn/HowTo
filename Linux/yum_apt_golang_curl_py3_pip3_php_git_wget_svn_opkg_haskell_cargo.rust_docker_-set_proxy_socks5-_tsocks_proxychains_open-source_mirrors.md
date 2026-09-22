@@ -336,6 +336,7 @@
     然后通过设置`/root/.wgetrc`使用http代理，支持代理的认证, luci的软件包管理也能用。  
   * 或者**手动安装 proxychains-ng**(在/packages), 设置 `/etc/proxychains.conf`, 约130kB, 只能命令行用.  
   * 如果报错`wget returned 5`, 可能是op对网站的证书验证失败，<span style="background:#fcf">检查op的本地时间是否正确</span>.   
+  * 手工安装包,apk总是要先更新源。不设置op的默认网关，或者带参数`--timeout 1`加快出错速度。  
 * 换源,清华大学:`sed -i s_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_ /etc/opkg/distfeeds.conf`  
   换浙大源，`sed -i s_vsean.net/openwrt_zju.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
   换科大源，`sed -i s_vsean.net/openwrt_ustc.edu.cn/immortalwrt_  /etc/opkg/distfeeds.conf`  
